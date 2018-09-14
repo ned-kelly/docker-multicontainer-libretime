@@ -1,6 +1,6 @@
 # "Libretime" Multi-container Docker Setup.
 
-This is a multi-container Docker build of the Libretime Radio Broadcast Software (Libretime is a direct fork of Airtime for those who are wondering, hence the similarities).
+This is a multi-container Docker build of the Libretime Radio Broadcast Software _(Libretime is a direct fork of Airtime for those who are wondering, hence the similarities)_.
 
 It's an aim to run the environment ready for production, with common media directories, database files etc mapped into the container(s) so data is persisted between rebuilds of the application.
 
@@ -9,9 +9,6 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 ---------------------------
 
 ![UI Screenshot](screenshots/ui-screenshot.png "Libretime UI Screenshot Example")
-
-![Configuration Passing](screenshots/config-check.png "Libretime Configuration all Passing")
-
 
 ## Overview:
 
@@ -24,7 +21,10 @@ The project consists of three main containers/components:
 ## Configuration:
 
 You will want to edit the `docker-compose.yml` file and change some of the mappings to suit your needs.
-If you're new to docker you should probably just change the `/localmusic:/external-media` line to the directory on your Linux server where your media resides (Just replace `/localmusic` with the path to your media).
+If you're new to docker you should probably configure:
+
+ - the `/localmusic:/external-media` line - Change this to the directory on your Linux server where your media resides
+ - Configure `LIBRETIME_PUBLIC_HOSTNAME` & `LIBRETIME_PUBLIC_PORT` variables in the `libretime-core` service.
 
 You will also want to configure `icecast.xml` to suit your needs - (Don't leave the passwords as the default if you're exposing this to the internet).
 
@@ -36,8 +36,9 @@ It's pretty straightforward, just clone down the sources and stand up the contai
 # Clone down sources
 git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 
-# Create shared docker network
-docker network create libretime
+### MAKE YOUR CONFIGURATION CHANGES REQUIRED ###
+vi docker-multicontainer-libretime/docker-compose.yml
+vi docker-multicontainer-libretime/config/icecast.xml
 
 # Stand up the container
 docker-compose up -d --build
@@ -74,6 +75,10 @@ Have fun!
 
 ## Deploying on the internet?
 
-You will need to setup port forwarding for TCP:8000 (Icecast server) and perhaps to your web interface...
+You will need to setup port forwarding for:
 
-You might want to use something like [Caddy](https://github.com/abiosoft/caddy-docker) to proxy pass to Apache with an automatic signed SSL certificate thanks to Lets Encrypt... 
+ - TCP:8000 (Icecast server)
+ - Perhaps to your web interface port if you want this public...
+ - TCP:8001 & TCP:8002 (Remote access for Master & Source inputs - **NB: This allows open access to Libretime, use with caution or via a VPN.**
+
+You might want to use something like [This Caddy Docker Container](https://github.com/abiosoft/caddy-docker) to proxy pass to Apache with an automatic signed SSL certificate thanks to Lets Encrypt... 

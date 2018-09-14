@@ -25,7 +25,7 @@ RUN sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get install libapache2-mod-php5 php5 php5-common php5-dev -y
 
 # Postgresql requires locales-all
-RUN export DEBIAN_FRONTEND=noninteractive && apt-get install postgresql postgresql-contrib -y
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get install postgresql postgresql-contrib crudini -y
 
 ## Locals need to be configured or the media monitor dies in the ass...
 RUN locale-gen "en_US.UTF-8" && \
@@ -61,8 +61,7 @@ RUN php5enmod opcache
 # There seems to be a bug somewhere in the code and it's not respecting the DB being on another host (even though it's configured in the config files!)
 # We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432. 
 
-RUN cd /opt/ && wget https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && \
-    tar -xzf go* && \
+RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
     mv go /usr/local/ && \
     export GOPATH=/opt/ && \
     export GOROOT=/usr/local/go && \
@@ -78,8 +77,6 @@ COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN chmod +x /opt/libretime/firstrun.sh && \
     chmod +x /opt/libretime/entrypoint.sh
-
-#RUN cp -rp "/etc/airtime" "/etc/airtime-template"
 
 VOLUME ["/etc/airtime", "/var/tmp/airtime/", "/var/log/airtime", "/usr/share/airtime", "/usr/lib/airtime"]
 VOLUME ["/var/tmp/airtime"]

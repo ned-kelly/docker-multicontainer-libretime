@@ -58,29 +58,55 @@ services:
       - 8002:8002
 
     environment:
+
+      #### NOTE: ####
+      #
+      # For detailed configuration, please edit the `config/airtime/airtime.conf` file once the container has started for the first time.
+      # The configuration variables here will over-write your airtime.conf file on the server when booting.
+      #
+      ########################################################################################
+      #
       # This should be the actual public IP/Host that you will access the WebUI on.
       # Libretime uses iframes so this must be accessible from where-ever you want to publish Libretime to.
  
-      - LIBRETIME_PUBLIC_HOSTNAME=10.16.10.8
-      - LIBRETIME_PUBLIC_PORT=8882
+      - LIBRETIME_PUBLIC_HOSTNAME=localhost
+      - LIBRETIME_PUBLIC_PORT=80
+
+      # Don't change these unless you change their values in the `libretime-rabbitmq` block.
+      - RABBITMQ_DEFAULT_VHOST=/libretime
+      - RABBITMQ_DEFAULT_USER=libretime
+      - RABBITMQ_DEFAULT_PASS=libretime
+
+      - POSTGRES_USER=libretime
+      - POSTGRES_PASSWORD=libretime
+      - POSTGRES_DB_NAME=libretime
+
+      # Leave as default if you're not planning on using AWS S3, otherwise set your AWS credentials to auto-upload your recordings etc to S3.
+      - "AWS_S3_API_KEY=0"
+      - "AWS_S3_API_SECRET=0"
+      - "AWS_S3_BUCKET_NAME=0"
+
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
       #- ./config/icecast.xml:/etc/icecast2/icecast.xml
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
-      #- ./config/airtime:/etc/airtime
+      - ./config/airtime:/etc/airtime
 
       # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
-
+      # Only change the `/localmedia` part of this directive to the location of your media files..
       - /localmusic:/external-media
 
     networks:
-      - libretime
       - libretime-internal
+      #- libretime
 
 networks:
-  libretime:
-    external: true
+
+  # You will need to run `docker network create libretime` if uncommenting this..
+  #libretime:
+  #  external: true
+
   libretime-internal:
     driver: bridge
