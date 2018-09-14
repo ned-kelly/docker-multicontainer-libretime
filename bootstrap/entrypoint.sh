@@ -7,10 +7,6 @@ echo "127.0.0.1 airtime libretime" >> /etc/hosts
 
 function setConfigFromEnvironments {
 
-    # General Config - Needs to be localhost:80 so that the services can access the API locally!
-    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_url" "localhost"
-    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_port" "80"
-
     # RabbitMQ
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "host" "libretime-rabbitmq"
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "user" "$RABBITMQ_DEFAULT_USER"
