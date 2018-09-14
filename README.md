@@ -11,7 +11,9 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 **Current Supported Libretime Version**: `libretime-3.0.0-alpha.4`
 
 
-![UI Screenshot](screenshots/ui-screenshot.png "Libretime UI Screenshot Example")
+![Homepage Screenshot](screenshots/homepage.png "Libretime UI Homepage")
+
+![Configuration Passing Screenshot](screenshots/config-check.png "Configuration Passing Screenshot")
 
 ## Overview:
 
