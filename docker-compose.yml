@@ -41,7 +41,12 @@ services:
       - libretime-internal
 
   libretime-core:
-    build: .
+    # Uncomment to build locally
+    # build: .
+
+    # Comment out if you want to use the local build rather than what's on docker-hub.
+    image: bushrangers/ubuntu-multicontainer-libretime
+
     container_name: libretime-core
     restart: always
     privileged:  true

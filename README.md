@@ -11,6 +11,14 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 **Current Supported Libretime Version**: `libretime-3.0.0-alpha.4`
 
 
+
+![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.svg) 
+![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.svg)
+
+
+
+
+
 ![Homepage Screenshot](screenshots/homepage.png "Libretime UI Homepage")
 
 ![Configuration Passing Screenshot](screenshots/config-check.png "Configuration Passing Screenshot")
