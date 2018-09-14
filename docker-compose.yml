@@ -1,0 +1,86 @@
+version: '2'
+
+services:
+  libretime-postgres:
+    image: postgres:9.3-alpine
+    container_name: libretime-postgres
+    restart: always
+    privileged: true
+
+    environment:
+      - POSTGRES_PASSWORD=libretime
+      - POSTGRES_USER=libretime
+      - PGDATA=/postgres_data
+
+    volumes:
+      - ./postgresql:/postgres_data
+      - /etc/localtime:/etc/localtime:ro
+
+    networks:
+      - libretime-internal
+
+    ports:
+      # Postgre port mapped to non-standard port (for external admin access) - Internal access is via the internal docker network
+      - 5433:5432
+
+  libretime-rabbitmq:
+    image: rabbitmq:3.6-alpine
+    container_name: libretime-rabbitmq
+    restart: always
+    privileged: true
+
+    environment:
+      - RABBITMQ_DEFAULT_USER=libretime
+      - RABBITMQ_DEFAULT_PASS=libretime
+      - "RABBITMQ_DEFAULT_VHOST=/libretime"
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+    networks:
+      - libretime-internal
+
+  libretime-core:
+    build: .
+    container_name: libretime-core
+    restart: always
+    privileged:  true
+
+    ports:
+      # Web UI Port (proxy pass to this, chang eto 80:80 if you want to access directly in the browser without a reverse proxy)
+      - 8882:80
+
+      # Icecast Default Port
+      - 8000:8000
+
+      # Master & Show Source Inputs:
+      - 8001:8001
+      - 8002:8002
+
+    environment:
+      # This should be the actual public IP/Host that you will access the WebUI on.
+      # Libretime uses iframes so this must be accessible from where-ever you want to publish Libretime to.
+ 
+      - LIBRETIME_PUBLIC_HOSTNAME=10.16.10.8
+      - LIBRETIME_PUBLIC_PORT=8882
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- ./config/icecast.xml:/etc/icecast2/icecast.xml
+      
+      # This structure has not yet been renamed in the fork of libretime from airtime.
+      #- ./config/airtime:/etc/airtime
+
+      # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
+
+      - /localmusic:/external-media
+
+    networks:
+      - libretime
+      - libretime-internal
+
+networks:
+  libretime:
+    external: true
+  libretime-internal:
+    driver: bridge
