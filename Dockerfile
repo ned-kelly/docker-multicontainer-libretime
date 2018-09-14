@@ -76,7 +76,8 @@ COPY bootstrap/firstrun.sh /opt/libretime/firstrun.sh
 COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN chmod +x /opt/libretime/firstrun.sh && \
-    chmod +x /opt/libretime/entrypoint.sh
+    chmod +x /opt/libretime/entrypoint.sh && \
+    chmod +x /etc/init.d/airtime-celery
 
 VOLUME ["/etc/airtime", "/var/tmp/airtime/", "/var/log/airtime", "/usr/share/airtime", "/usr/lib/airtime"]
 VOLUME ["/var/tmp/airtime"]

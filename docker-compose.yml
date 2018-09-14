@@ -87,7 +87,7 @@ services:
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      #- ./config/icecast.xml:/etc/icecast2/icecast.xml
+      - ./config/icecast.xml:/etc/icecast2/icecast.xml
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
       - ./config/airtime:/etc/airtime
