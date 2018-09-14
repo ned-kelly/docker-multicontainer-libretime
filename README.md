@@ -23,10 +23,11 @@ The project consists of three main containers/components:
 You will want to edit the `docker-compose.yml` file and change some of the mappings to suit your needs.
 If you're new to docker you should probably configure:
 
- - the `/localmusic:/external-media` line - Change this to the directory on your Linux server where your media resides
- - Configure `LIBRETIME_PUBLIC_HOSTNAME` & `LIBRETIME_PUBLIC_PORT` variables in the `libretime-core` service.
+ - Edit: `/localmusic:/external-media` - Change this to the directory on your Linux server where your media resides.
 
-You will also want to configure `icecast.xml` to suit your needs - (Don't leave the passwords as the default if you're exposing this to the internet).
+ - Configure the environment variables in the `libretime-core` block if you don't want to run with the default configuration - Note it's safe to just leave the default configuration/passwords etc as services (Postgres, RabbitMQ, etc) are only accessible from within the containers as they are in a 'bridged' docker network.
+
+ - You must configure `icecast.xml` to suit your needs - **(Don't leave the passwords as the default if you're exposing this to the internet)**.
 
 ## Standing up:
 
@@ -36,16 +37,19 @@ It's pretty straightforward, just clone down the sources and stand up the contai
 # Clone down sources
 git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 
-### MAKE YOUR CONFIGURATION CHANGES REQUIRED ###
+### MAKE YOUR CONFIGURATION CHANGES IF REQUIRED ###
 vi docker-multicontainer-libretime/docker-compose.yml
 vi docker-multicontainer-libretime/config/icecast.xml
+
+# Then, create the shared docker network
+docker network create libretime
 
 # Stand up the container
 docker-compose up -d --build
 
 ```
 **NOTE**:
-When running for the first time, the libretime-core container will run some 'boostrap' scripts. This will take 30-60 seconds (after standing up the containers) BEFORE you will be able to fully access libretime.
+When running for the first time, the libretime-core container will run some 'boostrap' scripts. This will take 15-30 seconds (after standing up the containers) BEFORE you will be able to fully access libretime.
 
 You can monitor the progress of the bootstrap process by running: `docker logs -f libretime-core`.
 
@@ -53,7 +57,7 @@ Once the containers have been stood up you should be able to access the project 
 
 ## Accessing:
 
-Just go to http://server-ip:8882/ (remove port 8882 if you mapped 80:80 in your docker-compose file)...
+Just go to http://server-ip:8882/ (change port 8882 to whatever you mapped in your docker-compose file if you changed this)...
 
  - Default Username: `admin`
  - Default Password: `admin`
@@ -64,14 +68,15 @@ If you need to check the status of any services you may also do so by going to:
 
 Have fun!
 
-**WAIT 30 SECONDS OR SO FOR THE CONTAINER TO BOOTSTRAP BEFORE TRYING TO ACCESS THE CONTAINER FOR THE FIRST TIME!**
+**BE SURE TO WAIT 15-30 SECONDS OR SO FOR THE CONTAINERS TO BOOTSTRAP BEFORE TRYING TO ACCESS FOR THE FIRST TIME**
 
-## Things to note / hack fixes:
+## Things to note & hack fixes:
 
  - There seems to be a bug in the current build of Libretime where if you run Postgres on another host the web/ui fails to log in (without any logs/errors showing anywhere)... After much pain trying to get this running "properly", the quick and simple fix has been to use a TCP proxy, that just proxies the PostgreSQL port:5432 to the actual dedicated postgres container.
 
- - Icecast can't really run in it's own dedicated container because Libretime currently writes its config file - This could be fixed my mapping the config files from one container into the other, but how far do we want to go here... For now, there's going to be no harm running it in the main `libretime-core` container as it uses minimal resources anyway.
+ - Icecast can't really run in it's own dedicated container because Libretime currently writes its config file - This could be fixed my mapping the config files from one container into the other, anyone want to submit a PR ;)
 
+ - By default - specifying "localhost" in the `LIBRETIME_PUBLIC_HOSTNAME` variable, won't obviously work with the iFrames that are currently in the codebase - For now we need to use a reverse proxy to replace "localhost" with whatever our "external" domain is...
 
 ## Deploying on the internet?
 

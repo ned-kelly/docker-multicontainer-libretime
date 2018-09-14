@@ -6,6 +6,10 @@ echo "127.0.0.1 airtime libretime" >> /etc/hosts
 
 function setConfigFromEnvironments {
 
+    # General Config
+    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_url" "$LIBRETIME_PUBLIC_HOSTNAME"
+    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_port" "$LIBRETIME_PUBLIC_PORT"
+
     # RabbitMQ
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "host" "libretime-rabbitmq"
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "user" "$RABBITMQ_DEFAULT_USER"

@@ -104,9 +104,9 @@ services:
 
 networks:
 
-  # You will need to run `docker network create libretime` if uncommenting this..
-  #libretime:
-  #  external: true
+  # You will need to run `docker network create libretime` for this to work properly before standing up the container..
+  libretime:
+    external: true
 
   libretime-internal:
     driver: bridge
