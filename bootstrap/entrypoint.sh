@@ -1,14 +1,15 @@
 #!/bin/bash
 AIRTIME_CONFIG_FILE="/etc/airtime/airtime.conf"
+AIRTIME_APACHE_CONFIG="/etc/apache2/sites-enabled/airtime.conf"
 
 # Airtime seems to expect the hostname of 'airtime' to be set to properly function...
 echo "127.0.0.1 airtime libretime" >> /etc/hosts
 
 function setConfigFromEnvironments {
 
-    # General Config
-    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_url" "$LIBRETIME_PUBLIC_HOSTNAME"
-    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_port" "$LIBRETIME_PUBLIC_PORT"
+    # General Config - Needs to be localhost:80 so that the services can access the API locally!
+    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_url" "localhost"
+    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_port" "80"
 
     # RabbitMQ
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "host" "libretime-rabbitmq"
@@ -34,6 +35,18 @@ function setConfigFromEnvironments {
     chmod 777 /etc/airtime/
 }
 
+function apacheFixes() {
+
+    if ! grep -q 'BEGIN:LOCALHOSTFIX--' "$AIRTIME_APACHE_CONFIG"
+    then
+
+        # Add in a "Substitute" filter to apache to strip out localhost references on the fly...
+        sed -i 's^.*</VirtualHost>.*^  # Quick fix for iframes that reference hard coded localhost in paths.\n  # BEGIN:LOCALHOSTFIX--\n   <Location "/">\n      SetOutputFilter SUBSTITUTE;DEFLATE\n      AddOutputFilterByType SUBSTITUTE text/html\n      Substitute "s|http://localhost//|/|ni"\n      Substitute "s|https://localhost//|/|ni"\n      Substitute "s|http://localhost/|/|ni"\n      Substitute "s|https://localhost/|/|ni"\n  </Location>\n&^' "$AIRTIME_APACHE_CONFIG"
+
+        a2enmod substitute
+    fi
+}
+
 if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
     echo "Prepping libretime for first run..."
 
@@ -41,13 +54,13 @@ if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
     /opt/libretime/firstrun.sh
 
     # update config based on environment variables...
-    setConfigFromEnvironments
+    setConfigFromEnvironments && apacheFixes
 
     # Start everything up :)
     /usr/bin/supervisord
 else
     # Check (and update if required) any config based on environment variables..
-    setConfigFromEnvironments
+    setConfigFromEnvironments && apacheFixes
 
     # We're already installed - just run supervisor..
     /usr/bin/supervisord

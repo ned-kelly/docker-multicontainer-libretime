@@ -22,10 +22,10 @@ curl -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
      --data "rmqUser=$RABBITMQ_DEFAULT_USER&rmqPass=$RABBITMQ_DEFAULT_PASS&rmqHost=libretime-rabbitmq&rmqPort=5672&rmqVHost=$RABBITMQ_DEFAULT_VHOST&rmqErr=" \
      "http://${IP}/setup/setup-functions.php?obj=RabbitMQSetup"
 
-# Web Interface - Variables are mapped in via Docker Compose environment variables...
+# Web Interface
 curl -s -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
      -H 'Accept: application/json, text/javascript, */*; q=0.01' \
-     --data "generalHost=$LIBRETIME_PUBLIC_HOSTNAME&generalPort=$LIBRETIME_PUBLIC_PORT&generalErr=" \
+     --data "generalHost=localhost&generalPort=80&generalErr=" \
      "http://${IP}/setup/setup-functions.php?obj=GeneralSetup"
 
 # Media Settings

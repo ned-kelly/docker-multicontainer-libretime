@@ -47,15 +47,15 @@ services:
     privileged:  true
 
     ports:
-      # Web UI Port (proxy pass to this, chang eto 80:80 if you want to access directly in the browser without a reverse proxy)
-      - 8882:80
-
       # Icecast Default Port
       - 8000:8000
 
       # Master & Show Source Inputs:
       - 8001:8001
       - 8002:8002
+
+      # This is the web UI Port (proxy pass to this, change to 80:80 if you want to access directly in the browser without a reverse proxy)
+      - 8882:80
 
     environment:
 
@@ -65,12 +65,6 @@ services:
       # The configuration variables here will over-write your airtime.conf file on the server when booting.
       #
       ########################################################################################
-      #
-      # This should be the actual public IP/Host that you will access the WebUI on.
-      # Libretime uses iframes so this must be accessible from where-ever you want to publish Libretime to.
- 
-      - LIBRETIME_PUBLIC_HOSTNAME=localhost
-      - LIBRETIME_PUBLIC_PORT=80
 
       # Don't change these unless you change their values in the `libretime-rabbitmq` block.
       - RABBITMQ_DEFAULT_VHOST=/libretime
@@ -86,7 +80,6 @@ services:
       - "AWS_S3_API_SECRET=0"
       - "AWS_S3_BUCKET_NAME=0"
 
-
     volumes:
       - /etc/localtime:/etc/localtime:ro
       #- ./config/icecast.xml:/etc/icecast2/icecast.xml
@@ -100,7 +93,7 @@ services:
 
     networks:
       - libretime-internal
-      #- libretime
+      - libretime
 
 networks:
 

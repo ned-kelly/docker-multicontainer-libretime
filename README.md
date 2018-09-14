@@ -8,6 +8,9 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 ---------------------------
 
+**Current Supported Libretime Version**: `libretime-3.0.0-alpha.4`
+
+
 ![UI Screenshot](screenshots/ui-screenshot.png "Libretime UI Screenshot Example")
 
 ## Overview:
@@ -76,8 +79,8 @@ Have fun!
 
  - Icecast can't really run in it's own dedicated container because Libretime currently writes its config file - This could be fixed my mapping the config files from one container into the other, anyone want to submit a PR ;)
 
- - By default - specifying "localhost" in the `LIBRETIME_PUBLIC_HOSTNAME` variable, won't obviously work with the iFrames that are currently in the codebase - For now we need to use a reverse proxy to replace "localhost" with whatever our "external" domain is...
-
+ - By default - using "localhost" as the server name variable (in airtime.conf), iFrames obviously won't work - For now we need to use a reverse proxy to replace the "localhost" iframes to be relative.. See [Feature Request 515](https://github.com/LibreTime/libretime/issues/515).
+ 
 ## Deploying on the internet?
 
 You will need to setup port forwarding for:
