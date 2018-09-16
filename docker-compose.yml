@@ -40,21 +40,47 @@ services:
     networks:
       - libretime-internal
 
+  libretime-icecast:
+    image: infiniteproject/icecast:latest
+    container_name: libretime-icecast
+    restart: always
+    privileged: true
+
+    environment:
+      - ICECAST_ADMIN_PASSWORD=admin
+      - ICECAST_ADMIN_USERNAME=hackme
+      - ICECAST_ADMIN_EMAIL=icemaster@example.com
+      - ICECAST_HOSTNAME=icecast.your-fqdn.com
+      - ICECAST_LOCATION=Mars
+      - ICECAST_MAX_CLIENTS=250
+      - ICECAST_MAX_SOURCES=3
+      - ICECAST_SOURCE_PASSWORD=hackme
+      - ICECAST_RELAY_PASSWORD=hackme
+
+    ports:
+      # The Icecast Default Port
+      - 8000:8000
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- ./config/icecast.xml:/etc/icecast.xml
+
+    networks:
+      - libretime-internal
+      - libretime
+
   libretime-core:
     # Uncomment to build locally
-    # build: .
+    build: .
 
     # Comment out if you want to use the local build rather than what's on docker-hub.
-    image: bushrangers/ubuntu-multicontainer-libretime
+    #image: bushrangers/ubuntu-multicontainer-libretime
 
     container_name: libretime-core
     restart: always
     privileged:  true
 
     ports:
-      # Icecast Default Port
-      - 8000:8000
-
       # Master & Show Source Inputs:
       - 8001:8001
       - 8002:8002
@@ -87,7 +113,6 @@ services:
 
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./config/icecast.xml:/etc/icecast2/icecast.xml
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
       - ./config/airtime:/etc/airtime
@@ -99,6 +124,9 @@ services:
     networks:
       - libretime-internal
       - libretime
+
+    # See: https://docs.docker.com/engine/reference/run/#cpu-share-constraint
+    cpu_shares: 2048
 
 networks:
 
