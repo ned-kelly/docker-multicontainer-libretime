@@ -41,7 +41,7 @@ If you're new to docker you should probably configure:
 
  - Configure the environment variables in the `libretime-core` block if you don't want to run with the default configuration - Note it's safe to just leave the default configuration/passwords etc as services (Postgres, RabbitMQ, etc) are only accessible from within the containers as they are in a 'bridged' docker network.
 
- - You must configure the `libretime-icecast` environment variables in your `docker-compose.yml` file to suit your needs - **(Don't leave the passwords as the default if you're exposing this to the internet)**.
+ - You must configure the `libretime-icecast` environment variables in your `docker-compose.yml` file to suit your needs - **(Don't leave the passwords as the default if you're exposing this to the internet - You will also need to update your settings in the Libratime UI)**.
 
 ## Standing up:
 
