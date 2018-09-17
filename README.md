@@ -12,8 +12,8 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 
 
-![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.svg) 
-![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.svg)
+![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.png) 
+![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.png)
 
 
 
@@ -25,7 +25,7 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 ## Overview:
 
-The project consists of three main containers/components:
+The project consists of four main containers/components:
 
  - `libretime-core` - This is the main Libretime container - Currently Based on the latest Ubuntu Xenial build.
  - `libretime-rabbitmq` - A seperated RabbitMQ container based on Alpine Linux.
