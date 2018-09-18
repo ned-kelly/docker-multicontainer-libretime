@@ -33,6 +33,8 @@ The project consists of four main containers/components:
  - `libretime-postgres` - The database engine behind Libretime - It's also an Alpine Linux build in an attempt to be as 'lean and mean' as possible when it comes to system resources.
  - `libretime-icecast` - The Icecast2 daemon - Alpine linux based, lightweight and uses minimal resources.
 
+![Container Overview](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/docker-container-diagram.png "Container Overview")
+
 ## Configuration:
 
 You will want to edit the `docker-compose.yml` file and change some of the mappings to suit your needs.
