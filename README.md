@@ -10,10 +10,11 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 **Last Tested Libretime Build**: [`master branch (2018-10-16) #b79af94`](https://github.com/LibreTime/libretime/commit/b79af9480b6a22952cc36b8f8813646b770a057b)
 
+**Docker Hub:** [`bushrangers/ubuntu-multicontainer-libretime`](https://hub.docker.com/r/bushrangers/ubuntu-multicontainer-libretime/)
 
 
-![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.png) 
-![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.png)
+
+![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.png) ![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.png)
 
 
 
@@ -54,9 +55,6 @@ git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 ### MAKE YOUR CONFIGURATION CHANGES IF REQUIRED ###
 vi docker-multicontainer-libretime/docker-compose.yml
 vi docker-multicontainer-libretime/config/icecast.xml
-
-# Then, create the shared docker network
-docker network create libretime
 
 # Stand up the container
 docker-compose up -d

@@ -14,7 +14,6 @@ services:
 
     volumes:
       - ./postgresql:/postgres_data
-      - /etc/localtime:/etc/localtime:ro
 
     networks:
       - libretime-internal
@@ -33,9 +32,6 @@ services:
       - RABBITMQ_DEFAULT_USER=libretime
       - RABBITMQ_DEFAULT_PASS=libretime
       - "RABBITMQ_DEFAULT_VHOST=/libretime"
-
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
 
     networks:
       - libretime-internal
@@ -61,17 +57,12 @@ services:
       # The Icecast Default Port
       - 8000:8000
 
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      #- ./config/icecast.xml:/etc/icecast.xml
-
     networks:
       - libretime-internal
-      - libretime
 
   libretime-core:
     # Uncomment to build locally
-    # build: .
+    #build: .
 
     # Comment out if you want to use the local build rather than what's on docker-hub.
     image: bushrangers/ubuntu-multicontainer-libretime
@@ -97,6 +88,9 @@ services:
       #
       ########################################################################################
 
+      # There's some apache fixes that are applied here so that you can expose the site on the internet - Specify the public FQDN name of your server here.
+      - EXTERNAL_HOSTNAME=subdomain.yoursite.com:8882
+
       # Don't change these unless you change their values in the `libretime-rabbitmq` block.
       - RABBITMQ_DEFAULT_VHOST=/libretime
       - RABBITMQ_DEFAULT_USER=libretime
@@ -112,27 +106,20 @@ services:
       - "AWS_S3_BUCKET_NAME=0"
 
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
       - ./config/airtime:/etc/airtime
 
       # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
-      # Only change the `/localmedia` part of this directive to the location of your media files..
-      - /localmusic:/external-media
+      # Change the `/localmusic` part of this directive to the location of your media files..
+      - ./localmusic:/external-media
 
     networks:
       - libretime-internal
-      - libretime
 
     # See: https://docs.docker.com/engine/reference/run/#cpu-share-constraint
     cpu_shares: 2048
 
 networks:
-
-  # You will need to run `docker network create libretime` for this to work properly before standing up the container..
-  libretime:
-    external: true
-
   libretime-internal:
     driver: bridge
