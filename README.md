@@ -18,12 +18,6 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 
 
-
-
-![Homepage Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/homepage.png "Libretime UI Homepage")
-
-![Configuration Passing Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/config-check.png "Configuration Passing Screenshot")
-
 ## Overview:
 
 The project consists of four main containers/components:
@@ -107,3 +101,13 @@ You will need to setup port forwarding to your Docker host for:
  - TCP:8001 & TCP:8002 (Remote access for Master & Source inputs - **NB: This allows open access to Libretime, use with caution or via a VPN.**
 
 You might want to use something like [This "Caddy" Docker Container](https://github.com/abiosoft/caddy-docker) to proxy pass to Apache with an automatic signed SSL certificate thanks to Lets Encrypt... 
+
+## Screenshots
+
+![Homepage Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/homepage.png "Libretime UI Homepage")
+
+_Fig 1: Homepage Example._
+
+![Configuration Passing Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/config-check.png "Configuration Passing Screenshot")
+
+_Fig 2: Configuration Passing & all services running "out of the box" as expected._
