@@ -1,0 +1,5 @@
+.DS_Store
+config/airtime
+postgresql
+Thumbs.db
+thumbs.db
