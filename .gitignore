@@ -4,3 +4,4 @@ postgresql/
 localmusic/
 Thumbs.db
 thumbs.db
+.env
