@@ -29,6 +29,10 @@ The project consists of four main containers/components:
  - `libretime-postgres` - The database engine behind Libretime - It's also an Alpine Linux build in an attempt to be as 'lean and mean' as possible when it comes to system resources.
  - `libretime-icecast` - The Icecast2 daemon - Alpine linux based, lightweight and uses minimal resources.
 
+Optional Extras:
+
+ - `icecast-analytics` - Your Icecast statistics in Google Analytics.
+
 ![Container Overview](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/docker-container-diagram.png "Container Overview")
 
 ## Configuration:
@@ -117,6 +121,10 @@ You will need to setup port forwarding to your Docker host for:
  - TCP:8001 & TCP:8002 (Remote access for Master & Source inputs - **NB: This allows open access to Libretime, use with caution or via a VPN.**
 
 You might want to use something like [This "Caddy" Docker Container](https://github.com/abiosoft/caddy-docker) to proxy pass to Apache with an automatic signed SSL certificate thanks to Lets Encrypt... 
+
+## Icecast Google Analytics
+
+If you want to send the data from your Icecast Streams to Google Analytics (so number of listeners, most popular streams/bitrates etc - please see the docker-[icecast-google-analytics](https://github.com/ned-kelly/docker-icecast-google-analytics) project, which can be integrated to your cluster.
 
 ## Customising & scripting your deployment
 
