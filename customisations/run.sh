@@ -35,3 +35,30 @@ fi
 
 cp "$SCRIPT_PWD/login-custom.css" "$CSS_CUSTOM_FILE"
 chown www-data:www-data "$CSS_CUSTOM_FILE"
+
+
+
+# Example: Add Google Analytics tracking on the homepage...
+HOMEPAGE_TEMPLATE="/usr/share/airtime/php/airtime_mvc/application/views/scripts/index/index.phtml"
+GA_SITE_TAG='<!-- GA-SITE-TAG -->'
+
+# Update this with your real Google Analytics Site ID
+GA_SITE_ID="UA-126119626-1"
+
+if ! grep -q "$GA_SITE_TAG" "$HOMEPAGE_TEMPLATE"
+then
+
+    # Only add in GA Javascript if it's not yet in the file...
+    echo '<!-- GA-SITE-TAG -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-126119626-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+
+      gtag("config", "'"$GA_SITE_ID"'");
+    </script>' >> "$HOMEPAGE_TEMPLATE"
+
+fi
+
+

@@ -125,7 +125,10 @@ services:
 
     networks:
       - libretime-internal
+      - libretime
 
 networks:
   libretime-internal:
     driver: bridge
+  libretime:
+    external: true

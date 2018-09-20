@@ -122,7 +122,13 @@ You might want to use something like [This "Caddy" Docker Container](https://git
 
 - Anything in the `customisations/` directory will be mapped into `/etc/airtime-customisations` in the container allowing you to script custom fixes/changes to the core libretime container.
 
-- By default a file called `run.sh` will be executed (if it exists) - The current example changes the background image.
+- By default a file called `run.sh` will be executed (if it exists).
+
+**Sample Customisations (in `run.sh`):**
+
+  - Change Homepage Background
+  - Add in Custom CSS to Homepage
+  - Add in Google Analytics Tracking to Homepage
 
 ## Sample screenshots
 
