@@ -68,10 +68,10 @@ services:
 
   libretime-core:
     # Uncomment to build locally
-    build: .
+    # build: .
 
     # Comment out if you want to use the local build rather than what's on docker-hub.
-    # image: bushrangers/ubuntu-multicontainer-libretime
+    image: bushrangers/ubuntu-multicontainer-libretime
 
     container_name: libretime-core
     restart: always
@@ -115,6 +115,9 @@ services:
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
       - ./config/airtime:/etc/airtime
+
+      # Airtime customisations directory...
+      - ./customisations:/etc/airtime-customisations
 
       # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
       # Change the `/localmusic` part of this directive to the location of your media files..

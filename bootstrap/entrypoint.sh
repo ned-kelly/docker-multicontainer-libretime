@@ -2,6 +2,9 @@
 AIRTIME_CONFIG_FILE="/etc/airtime/airtime.conf"
 AIRTIME_APACHE_CONFIG="/etc/apache2/sites-enabled/airtime.conf"
 
+# Script that is executed to apply further customizations to airtime.
+CUSTOMISATIONS_SCRIPT="/etc/airtime-customisations/run.sh"
+
 # Airtime seems to expect the hostname of 'airtime' to be set to properly function...
 echo "127.0.0.1 airtime libretime" >> /etc/hosts
 
@@ -44,12 +47,16 @@ function apacheFixes() {
 
     if ! grep -q "$EXTERNAL_HOSTNAME" "$AIRTIME_APACHE_CONFIG"
     then
-
         # Fix localhost on "Radio Embed Page"
         sed -i 's^.*</Location>.*^ Substitute "s|http:\\/\\/localhost:8000|http:\\/\\/'"$EXTERNAL_HOSTNAME"'|ni"\n&^' "$AIRTIME_APACHE_CONFIG"
-
     fi
 
+}
+
+function customisations() {
+    if [ -f "$CUSTOMISATIONS_SCRIPT" ]; then
+        bash "$CUSTOMISATIONS_SCRIPT" 
+    fi
 }
 
 if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
@@ -59,13 +66,13 @@ if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
     /opt/libretime/firstrun.sh
 
     # update config based on environment variables...
-    setConfigFromEnvironments && apacheFixes
+    setConfigFromEnvironments && apacheFixes && customisations
 
     # Start everything up :)
     /usr/bin/supervisord
 else
     # Check (and update if required) any config based on environment variables..
-    setConfigFromEnvironments && apacheFixes
+    setConfigFromEnvironments && apacheFixes && customisations
 
     # We're already installed - just run supervisor..
     /usr/bin/supervisord

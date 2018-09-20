@@ -2,13 +2,15 @@
 
 This is a multi-container Docker build of the Libretime Radio Broadcast Software _(Libretime is a direct fork of Airtime for those who are wondering, hence the similarities)_.
 
-It's an aim to run the environment ready for production, with common media directories, database files etc mapped into the container(s) so data is persisted between rebuilds of the application.
+It's an aim to run the environment ready for production which can be stood up in a few minutes (with ease), and all common media directories, database files etc mapped into the container(s) so data is persisted between rebuilds of the application.
 
 It's originally based off my [`docker-multicontainer-airtime`](https://github.com/ned-kelly/docker-multicontainer-airtime) setup, and has been adapted to suit the newer Libretime sources accordingly.
 
+**If you require assistance deploying this solution for a commercial station, please feel free to reach out to me - I do provide consultancy services.**
+
 ---------------------------
 
-**Last Tested Libretime Build**: [`master branch (2018-10-16) #b79af94`](https://github.com/LibreTime/libretime/commit/b79af9480b6a22952cc36b8f8813646b770a057b)
+**Last Tested Libretime Build**: [`ned-kelly fork (2018-10-20)`](https://github.com/ned-kelly/libretime)
 
 **Docker Hub:** [`bushrangers/ubuntu-multicontainer-libretime`](https://hub.docker.com/r/bushrangers/ubuntu-multicontainer-libretime/)
 
@@ -31,14 +33,23 @@ The project consists of four main containers/components:
 
 ## Configuration:
 
-You will want to edit the `docker-compose.yml` file and change some of the mappings to suit your needs.
-If you're new to docker you should probably configure:
+You will want to create a new `.env` file in the root of the project directory with variables that will not be over-written when pulling down newer builds of the configuration.
 
- - Edit: `/localmusic:/external-media` - Change this to the directory on your Linux server where your media resides.
+If you are just testing locally and not deploying this in a production environment, you can skip over this section and use the default configuration.
 
- - Configure the environment variables in the `libretime-core` block if you don't want to run with the default configuration - Note it's safe to just leave the default configuration/passwords etc as services (Postgres, RabbitMQ, etc) are only accessible from within the containers as they are in a 'bridged' docker network.
+### Variables Currently Supported:
 
- - You must configure the `libretime-icecast` environment variables in your `docker-compose.yml` file to suit your needs - **(Don't leave the passwords as the default if you're exposing this to the internet - You will also need to update your settings in the Libratime UI)**.
+| Variable                | Targets            | Default Value                | Purpose                                                               |
+|-------------------------|--------------------|------------------------------|-----------------------------------------------------------------------|
+| `POSTGRES_USER`         | libretime-postgres | libretime                    | The username to provision when standing up PostgreSQL                 |
+| `POSTGRES_PASSWORD`     | libretime-postgres | libretime                    | Password for the PostgreSQL Database                                  |
+| `RABBITMQ_DEFAULT_USER` | libretime-rabbitmq | libretime                    | Username to access the RabbitMQ service                               |
+| `RABBITMQ_DEFAULT_PASS` | libretime-rabbitmq | libretime                    | Username to access the RabbitMQ service                               |
+| `ICECAST_CONFIG_FILE`   | libretime-icecast  | ./config/icecast-example.xml | Path to your Icecast configuration file                               |
+| `EXTERNAL_HOSTNAME`     | libretime-core     | localhost                    | The FQDN of your server published on the internet - If left as `localhost` apache iframes and other configuration will be stripped out and made "relative"                     |
+| `LOCAL_MUSIC_MAPPING`   | libretime-core     | `./localmusic`               | The path to your media directory / where uploads/media will be stored |
+
+You must change the passwords in your `ICECAST_CONFIG_FILE` at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
 
 ## Standing up:
 
@@ -49,11 +60,11 @@ It's pretty straightforward, just clone down the sources and stand up the contai
 git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 
 ### MAKE YOUR CONFIGURATION CHANGES IF REQUIRED ###
-vi docker-multicontainer-libretime/docker-compose.yml
-vi docker-multicontainer-libretime/config/icecast.xml
+vi docker-multicontainer-libretime/.env
 
-# Icecast XML file will be modified by startup script(s)
-chmod 777 docker-multicontainer-libretime/config/icecast.xml
+# Edit your Icecast File
+cp docker-multicontainer-libretime/config/icecast-example.xml docker-multicontainer-libretime/config/icecast.xml
+vi docker-multicontainer-libretime/config/icecast.xml
 
 # Stand up the container
 docker-compose up -d
@@ -94,8 +105,10 @@ Have fun!
  - By default - using "localhost" as the server name variable (in airtime.conf), iFrames obviously won't work - For now we are using a reverse proxy fix to replace any references to the "localhost" iframes to be relative.. See [Feature Request 515](https://github.com/LibreTime/libretime/issues/515) for details.
 
  - There seems to be issues when trying to just plonk a reverse proxy directly in front of the latest release of Libratime - Suspect some additional headers may need to be passed through - Anyone who has found a fix when using reverse proxies, please submit a PR.
+
+ - The current build of Airtime has some issues pulling in podcasts that are in formats other than MP3 - this includes the [#519](https://github.com/LibreTime/libretime/issues/519) fix for users wanting to auto-import large quantities of podcasts it's pretty important as libretime currently only seems to work with MP3 podcasts.
  
-## Deploying on the internet?
+## Deploying on the Internet?
 
 You will need to setup port forwarding to your Docker host for:
 
@@ -105,12 +118,22 @@ You will need to setup port forwarding to your Docker host for:
 
 You might want to use something like [This "Caddy" Docker Container](https://github.com/abiosoft/caddy-docker) to proxy pass to Apache with an automatic signed SSL certificate thanks to Lets Encrypt... 
 
-## Screenshots
+## Customising & scripting your deployment
+
+- Anything in the `customisations/` directory will be mapped into `/etc/airtime-customisations` in the container allowing you to script custom fixes/changes to the core libretime container.
+
+- By default a file called `run.sh` will be executed (if it exists) - The current example changes the background image.
+
+## Sample screenshots
 
 ![Homepage Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/homepage.png "Libretime UI Homepage")
 
-_Fig 1: Homepage Example._
+_Fig 1: Homepage Example (with CSS customisations)._
+
+![Schedule Example](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/schedule-example.png "Schedule Example")
+
+_Fig 2: Example of Schedule_
 
 ![Configuration Passing Screenshot](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/config-check.png "Configuration Passing Screenshot")
 
-_Fig 2: Configuration Passing & all services running "out of the box" as expected._
+_Fig 3: Configuration Passing & all services running "out of the box" as expected._
