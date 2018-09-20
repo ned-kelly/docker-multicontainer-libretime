@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   libretime-postgres:
@@ -8,9 +8,9 @@ services:
     privileged: true
 
     environment:
-      - POSTGRES_PASSWORD=libretime
-      - POSTGRES_USER=libretime
-      - PGDATA=/postgres_data
+      - "POSTGRES_USER=${POSTGRES_USER-libretime}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD-libretime}"
+      - "PGDATA=/postgres_data"
 
     volumes:
       - ./postgresql:/postgres_data
@@ -29,8 +29,8 @@ services:
     privileged: true
 
     environment:
-      - RABBITMQ_DEFAULT_USER=libretime
-      - RABBITMQ_DEFAULT_PASS=libretime
+      - "RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER-libretime}"
+      - "RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS-libretime}"
       - "RABBITMQ_DEFAULT_VHOST=/libretime"
 
     networks:
@@ -43,29 +43,35 @@ services:
     privileged: true
 
     environment:
-      - ICECAST_ADMIN_PASSWORD=admin
-      - ICECAST_ADMIN_USERNAME=hackme
-      - ICECAST_ADMIN_EMAIL=icemaster@example.com
-      - ICECAST_HOSTNAME=icecast.your-fqdn.com
-      - ICECAST_LOCATION=Mars
-      - ICECAST_MAX_CLIENTS=250
-      - ICECAST_MAX_SOURCES=3
-      - ICECAST_SOURCE_PASSWORD=hackme
-      - ICECAST_RELAY_PASSWORD=hackme
+      - "ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD-admin}"
+      - "ICECAST_ADMIN_USERNAME=${ICECAST_ADMIN_USERNAME-hackme}"
+      - "ICECAST_ADMIN_EMAIL=${ICECAST_ADMIN_EMAIL-icemaster@example.com}"
+      - "ICECAST_HOSTNAME=${ICECAST_HOSTNAME-icecast.your-fqdn.com}"
+      - "ICECAST_LOCATION=${ICECAST_LOCATION-Mars}"
+      - "ICECAST_MAX_CLIENTS=${ICECAST_MAX_CLIENTS-250}"
+      - "ICECAST_MAX_SOURCES=${ICECAST_MAX_SOURCES-3}"
+      - "ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD-hackme}"
+      - "ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD-hackme}"
 
     ports:
-      # The Icecast Default Port
-      - 8000:8000
 
+      # Icecast alternative port (probably good to expose this one to the web)
+      - 35112:35112
+
+      # The Icecast Default Port (mapping through for local clients that may require :8000)
+      - 8000:35112
+
+    volumes:
+      - ${ICECAST_CONFIG_FILE-./config/icecast-example.xml}:/etc/icecast.xml
     networks:
       - libretime-internal
 
   libretime-core:
     # Uncomment to build locally
-    #build: .
+    build: .
 
     # Comment out if you want to use the local build rather than what's on docker-hub.
-    image: bushrangers/ubuntu-multicontainer-libretime
+    # image: bushrangers/ubuntu-multicontainer-libretime
 
     container_name: libretime-core
     restart: always
@@ -89,15 +95,15 @@ services:
       ########################################################################################
 
       # There's some apache fixes that are applied here so that you can expose the site on the internet - Specify the public FQDN name of your server here.
-      - EXTERNAL_HOSTNAME=subdomain.yoursite.com:8882
+      - "EXTERNAL_HOSTNAME=${EXTERNAL_HOSTNAME-localhost}"
 
       # Don't change these unless you change their values in the `libretime-rabbitmq` block.
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER-libretime}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS-libretime}
       - RABBITMQ_DEFAULT_VHOST=/libretime
-      - RABBITMQ_DEFAULT_USER=libretime
-      - RABBITMQ_DEFAULT_PASS=libretime
 
-      - POSTGRES_USER=libretime
-      - POSTGRES_PASSWORD=libretime
+      - POSTGRES_USER=${POSTGRES_USER-libretime}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD-libretime}
       - POSTGRES_DB_NAME=libretime
 
       # Leave as default if you're not planning on using AWS S3, otherwise set your AWS credentials to auto-upload your recordings etc to S3.
@@ -112,13 +118,10 @@ services:
 
       # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
       # Change the `/localmusic` part of this directive to the location of your media files..
-      - ./localmusic:/external-media
+      - ${LOCAL_MUSIC_MAPPING-./localmusic}:/external-media
 
     networks:
       - libretime-internal
-
-    # See: https://docs.docker.com/engine/reference/run/#cpu-share-constraint
-    cpu_shares: 2048
 
 networks:
   libretime-internal:

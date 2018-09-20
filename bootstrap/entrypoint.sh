@@ -46,7 +46,7 @@ function apacheFixes() {
     then
 
         # Fix localhost on "Radio Embed Page"
-        sed -i 's^.*</Location>.*^ Substitute "s|http:\/\/localhost:8000|http:\/\/'"$EXTERNAL_HOSTNAME"'|ni"\n&^' "$AIRTIME_APACHE_CONFIG"
+        sed -i 's^.*</Location>.*^ Substitute "s|http:\\/\\/localhost:8000|http:\\/\\/'"$EXTERNAL_HOSTNAME"'|ni"\n&^' "$AIRTIME_APACHE_CONFIG"
 
     fi
 

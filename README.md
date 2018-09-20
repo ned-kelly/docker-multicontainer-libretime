@@ -52,6 +52,9 @@ git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 vi docker-multicontainer-libretime/docker-compose.yml
 vi docker-multicontainer-libretime/config/icecast.xml
 
+# Icecast XML file will be modified by startup script(s)
+chmod 777 docker-multicontainer-libretime/config/icecast.xml
+
 # Stand up the container
 docker-compose up -d
 
