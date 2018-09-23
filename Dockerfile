@@ -52,6 +52,10 @@ COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /opt/libretime/firstrun.sh && \
     chmod +x /opt/libretime/entrypoint.sh
 
+# Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)...
+COPY bootstrap/add-to-cron.txt /var/add-to-cron.txt
+RUN crontab /var/add-to-cron.txt
+
 VOLUME ["/etc/airtime", "/var/tmp/airtime/", "/var/log/airtime", "/usr/share/airtime", "/usr/lib/airtime"]
 VOLUME ["/var/tmp/airtime"]
 

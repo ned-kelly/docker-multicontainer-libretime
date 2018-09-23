@@ -62,3 +62,16 @@ then
 fi
 
 
+# Example: Change CSS Colours with the schedule/calendar on the login page
+WEEKLY_PROGRAM="/usr/share/airtime/php/airtime_mvc/application/views/scripts/embed/weekly-program.phtml"
+WEEKLY_PROGRAM_TAG='<!-- IFRAME-CSS-ADDITIONS -->'
+
+if ! grep -q "$WEEKLY_PROGRAM_TAG" "$WEEKLY_PROGRAM"
+then
+
+    # Only add in GA Javascript if it's not yet in the file...
+    echo '<!-- IFRAME-CSS-ADDITIONS -->
+    <link type="text/css" rel="Stylesheet" href="/assets/css/schedule.css" />
+    ' >> "$WEEKLY_PROGRAM"
+
+fi

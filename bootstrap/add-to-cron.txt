@@ -1,0 +1,16 @@
+# Any custom schedules you need added to cron within the container can be defined here...
+# Use the standard cron format...
+# 
+#        ┌───────────── minute (0 - 59)
+#        │ ┌───────────── hour (0 - 23)
+#        │ │ ┌───────────── day of the month (1 - 31)
+#        │ │ │ ┌───────────── month (1 - 12)
+#        │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
+#        │ │ │ │ │                                   7 is also Sunday on some systems)
+#        │ │ │ │ │
+#        │ │ │ │ │
+#        * * * * * command to execute
+# 
+######################################################################
+
+0 * * * * find /tmp/ -type f -mmin +60 -exec rm -fv {} \;
