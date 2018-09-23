@@ -112,6 +112,8 @@ Have fun!
 
  - The current build of Airtime has some issues pulling in podcasts that are in formats other than MP3 - this includes the [#519](https://github.com/LibreTime/libretime/issues/519) fix for users wanting to auto-import large quantities of podcasts it's pretty important as libretime currently only seems to work with MP3 podcasts.
  
+ - If you're syndicating a lot of podcasts, there's an issue where the temp files are not properly cleaned up in the /tmp/ directory of the container which will result in disk space issues if you're running for a long time... There's a cron job that's been added to the container to cleanup the /tmp/ files each hour ... If you need to add any other custom cron jobs for your setup, just add them to the `bootstrap/add-to-cron.txt` file and then re-build the container.
+
 ## Deploying on the Internet?
 
 You will need to setup port forwarding to your Docker host for:
