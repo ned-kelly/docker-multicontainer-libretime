@@ -9,6 +9,8 @@ CUSTOMISATIONS_SCRIPT="/etc/airtime-customisations/run.sh"
 echo "127.0.0.1 airtime libretime" >> /etc/hosts
 
 function setConfigFromEnvironments {
+    # General
+    crudini --set "$AIRTIME_CONFIG_FILE" "general" "base_url" "$EXTERNAL_HOSTNAME"
 
     # RabbitMQ
     crudini --set "$AIRTIME_CONFIG_FILE" "rabbitmq" "host" "libretime-rabbitmq"
