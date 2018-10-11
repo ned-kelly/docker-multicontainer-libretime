@@ -20,8 +20,13 @@ RUN locale-gen "en_US.UTF-8" && \
 RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
 
 # Pull down libretime sources
+ADD https://github.com/ned-kelly/libretime/archive/master.tar.gz /opt
+
+# Run libretime install script
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    git clone https://github.com/ned-kelly/libretime.git /opt/libretime && \
+    cd /opt && \
+    tar -xzf /opt/master.tar.gz && \
+    mv /opt/libretime-master /opt/libretime && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
     sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
