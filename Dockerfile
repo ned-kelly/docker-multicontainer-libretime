@@ -14,8 +14,12 @@ RUN sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
 
 ## Locals need to be configured or the media monitor dies in the ass...
 RUN locale-gen "en_US.UTF-8" && \
-    dpkg-reconfigure locales && \
     echo -e "LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8" >> /etc/default/locale
+
+ENV PYTHONIOENCODING UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
 
 RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
 
