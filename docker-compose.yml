@@ -82,8 +82,8 @@ services:
       - 8001:8001
       - 8002:8002
 
-      # This is the web UI Port (proxy pass to this, change to 80:80 if you want to access directly in the browser without a reverse proxy)
-      - 8882:80
+      # Port at which the LibreTime web interface should be served
+      - ${WEB_UI_PORT-8882}:80
 
     environment:
 
