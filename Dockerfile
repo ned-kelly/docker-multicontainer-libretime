@@ -45,6 +45,12 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
 RUN apt-get clean
 
+RUN export DEBIAN_FRONTEND=noninteractive && \
+ wget -qO- http://download.opensuse.org/repositories/home:/hairmare:/silan/Debian_7.0/Release.key   | apt-key add -  && \
+echo 'deb http://download.opensuse.org/repositories/home:/hairmare:/silan/xUbuntu_16.04 ./'   > /etc/apt/sources.list.d/hairmare_silan.list  && \
+apt-get update  && \
+apt-get install silan
+
 COPY bootstrap/entrypoint.sh /opt/libretime/entrypoint.sh
 COPY bootstrap/firstrun.sh /opt/libretime/firstrun.sh
 COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
