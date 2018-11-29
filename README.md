@@ -52,6 +52,9 @@ If you are just testing locally and not deploying this in a production environme
 | `ICECAST_CONFIG_FILE`   | libretime-icecast  | ./config/icecast-example.xml | Path to your Icecast configuration file                               |
 | `EXTERNAL_HOSTNAME`     | libretime-core     | localhost                    | The FQDN of your server published on the internet - If left as `localhost` apache iframes and other configuration will be stripped out and made "relative"                     |
 | `LOCAL_MUSIC_MAPPING`   | libretime-core     | `./localmusic`               | The path to your media directory / where uploads/media will be stored |
+| `WEB_UI_PORT`           | libretime-core     | 8882                         | The default port that the main Libretime HTTP Server/Web-UI will run on |
+| `MASTER_SOURCE_PORT`    | libretime-core     | 8001                         | Master port that producers can use to over-ride the active program with an Icecast Stream (Use a tool like [BUTT](https://github.com/dkwiebe/broadcasttool)) |
+| `DJ_SOURCE_PORT`        | libretime-core     | 8002                         | DJ's Icecast port that they can use remotely (using their Libretime credentials) to broadcast during their scheduled time-slot |
 
 You must change the passwords in your `ICECAST_CONFIG_FILE` at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
 

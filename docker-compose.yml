@@ -71,7 +71,7 @@ services:
     # build: .
 
     # Comment out if you want to use the local build rather than what's on docker-hub.
-    image: bushrangers/ubuntu-multicontainer-libretime
+    image: bushrangers/ubuntu-multicontainer-libretime:latest
 
     container_name: libretime-core
     restart: always
@@ -79,8 +79,8 @@ services:
 
     ports:
       # Master & Show Source Inputs:
-      - 8001:8001
-      - 8002:8002
+      - ${MASTER_SOURCE_PORT-8001}:8001
+      - ${DJ_SOURCE_PORT-8002}:8002
 
       # Port at which the LibreTime web interface should be served
       - ${WEB_UI_PORT-8882}:80
