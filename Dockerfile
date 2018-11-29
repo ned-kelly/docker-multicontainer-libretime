@@ -75,17 +75,17 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
 # Remove PostgreSQL and RMQ before building Silian...
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
 
+# We need to install ffmpeg BEFORE we've built and statically linked silan (it will link some files that ffmpeg will remove if ffmpeg installed after)...
+# See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
+RUN apt-get install ffmpeg -y
+
 # Build us a copy of Silan 0.4.0 which fixes many of the various problems listed throughout the libretime forums.
 RUN apt-get remove silan -y && \
     git clone https://github.com/x42/silan.git /opt/silan && \
     cd /opt/silan && git fetch && git fetch --tags && git checkout "v0.4.0" && \
     /opt/silan/x-pbuildstatic.sh && \
     cd /usr/src/silan && make && make install && \
-    ln -s /usr/local/bin/silan /usr/bin/silan && \
-
-    # We need to install ffmpeg AFTER we've built and statically linked silan... 
-    # See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
-    apt-get install ffmpeg -y
+    ln -s /usr/local/bin/silan /usr/bin/silan
 
 COPY bootstrap/entrypoint.sh bootstrap/add-to-cron.txt bootstrap/firstrun.sh /opt/libretime/
 COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
