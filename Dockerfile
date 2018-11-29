@@ -84,7 +84,7 @@ RUN apt-get remove silan -y && \
     git clone https://github.com/x42/silan.git /opt/silan && \
     cd /opt/silan && git fetch && git fetch --tags && git checkout "v0.4.0" && \
     /opt/silan/x-pbuildstatic.sh && \
-    cd /usr/src/silan && make && make install && \
+    cd /usr/src/silan && ./configure && make && make install && \
     ln -s /usr/local/bin/silan /usr/bin/silan
 
 COPY bootstrap/entrypoint.sh bootstrap/add-to-cron.txt bootstrap/firstrun.sh /opt/libretime/
