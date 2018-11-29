@@ -14,8 +14,12 @@ RUN sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
 
 ## Locals need to be configured or the media monitor dies in the ass...
 RUN locale-gen "en_US.UTF-8" && \
-    dpkg-reconfigure locales && \
     echo -e "LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8" >> /etc/default/locale
+
+ENV PYTHONIOENCODING UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
 
 RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
 
@@ -44,6 +48,12 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
 # Cleanup excess fat...
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
 RUN apt-get clean
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+ wget -qO- http://download.opensuse.org/repositories/home:/hairmare:/silan/Debian_7.0/Release.key   | apt-key add -  && \
+echo 'deb http://download.opensuse.org/repositories/home:/hairmare:/silan/xUbuntu_16.04 ./'   > /etc/apt/sources.list.d/hairmare_silan.list  && \
+apt-get update  && \
+apt-get install silan
 
 COPY bootstrap/entrypoint.sh /opt/libretime/entrypoint.sh
 COPY bootstrap/firstrun.sh /opt/libretime/firstrun.sh
