@@ -127,6 +127,20 @@ services:
       - libretime-internal
       - libretime
 
+  ## UNCOMMENT IF YOU WANT TO SEND YOUR ICECAST LISTENER STATS UP TO GOOGLE ANALTYICS 
+  # icecast-analytics:
+
+  #   image: bushrangers/docker-icecast-google-analytics:latest
+
+  #   container_name: icecast-analytics
+  #   restart: always
+  #   privileged:  true
+  #   network_mode: host
+
+  ## PLEASE CONFIGURE THE "icecast-ga-config.xml" FILE BEFORE USING THIS CONTAINER
+  #   volumes:
+  # - ./config/icecast-ga-config.xml:/config/config.xml
+
 networks:
   libretime-internal:
     driver: bridge

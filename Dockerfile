@@ -1,15 +1,32 @@
 FROM ubuntu:xenial
 
+LABEL maintainer="david@nedved.com.au"
+LABEL description="A multi-container deployment of the Libretime Radio Broadcast Server, PostgreSQL, Icecast2 & RabbitMQ, based on Ubuntu Xenial & Alpine Linux!"
+
 ## General components we need in this container...
-RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y locales sudo htop nano supervisor curl wget crudini git
+    apt-get clean && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends apt-utils && \
+    apt-get install -y \
+        locales \
+        sudo \
+        htop \
+        nano \
+        supervisor \
+        curl \
+        wget \
+        crudini \
+        git
 
 # Multiverse requried for some pkgs...
 ## libretime also use python, and the latest ubuntu build is breaking a few things... Here's a quick fix:
 RUN sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list && \
     apt-get update -y && \
-    apt-get --fix-missing --reinstall install python python-minimal dh-python git -y && \
+    apt-get --fix-missing --reinstall install \
+        python \
+        python-minimal \
+        dh-python -y && \
     apt-get -f install
 
 ## Locals need to be configured or the media monitor dies in the ass...
@@ -21,7 +38,16 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
-RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
+RUN apt-get install -y \
+        php7.0-curl \
+        php7.0-pgsql \
+        apache2 \
+        libapache2-mod-php7.0 \
+        php7.0 \
+        php-pear \
+        php7.0-gd \
+        php-bcmath \
+        php-mbstring
 
 # Pull down libretime sources
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -43,28 +69,35 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
     export GOPATH=/opt/ && \
     export GOROOT=/usr/local/go && \
     export PATH=$GOPATH/bin:$GOROOT/bin:$PATH && \
-    go get github.com/jpillora/go-tcp-proxy/cmd/tcp-proxy
+    go get github.com/jpillora/go-tcp-proxy/cmd/tcp-proxy && \
+    rm -rf /opt/go1.*.tar.gz
 
-# Cleanup excess fat...
+# Remove PostgreSQL and RMQ before building Silian...
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
-RUN apt-get clean
 
-RUN export DEBIAN_FRONTEND=noninteractive && \
- wget -qO- http://download.opensuse.org/repositories/home:/hairmare:/silan/Debian_7.0/Release.key   | apt-key add -  && \
-echo 'deb http://download.opensuse.org/repositories/home:/hairmare:/silan/xUbuntu_16.04 ./'   > /etc/apt/sources.list.d/hairmare_silan.list  && \
-apt-get update  && \
-apt-get install silan
+# Build us a copy of Silan 0.4.0 which fixes many of the various problems listed throughout the libretime forums.
+RUN apt-get remove silan -y && \
+    git clone https://github.com/x42/silan.git /opt/silan && \
+    cd /opt/silan && git fetch && git fetch --tags && git checkout "v0.4.0" && \
+    /opt/silan/x-pbuildstatic.sh && \
+    cd /usr/src/silan && make && make install && \
+    ln -s /usr/local/bin/silan /usr/bin/silan && \
 
-COPY bootstrap/entrypoint.sh /opt/libretime/entrypoint.sh
-COPY bootstrap/firstrun.sh /opt/libretime/firstrun.sh
+    # We need to install ffmpeg AFTER we've built and statically linked silan... 
+    # See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
+    apt-get install ffmpeg -y
+
+COPY bootstrap/entrypoint.sh bootstrap/add-to-cron.txt bootstrap/firstrun.sh /opt/libretime/
 COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN chmod +x /opt/libretime/firstrun.sh && \
-    chmod +x /opt/libretime/entrypoint.sh
+    chmod +x /opt/libretime/entrypoint.sh && \
 
-# Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)...
-COPY bootstrap/add-to-cron.txt /var/add-to-cron.txt
-RUN crontab /var/add-to-cron.txt
+    # Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)... 
+    crontab /opt/libretime/add-to-cron.txt
+
+# Cleanup excess fat...
+RUN apt-get clean
 
 VOLUME ["/etc/airtime", "/var/tmp/airtime/", "/var/log/airtime", "/usr/share/airtime", "/usr/lib/airtime"]
 VOLUME ["/var/tmp/airtime"]
