@@ -70,6 +70,9 @@ vi docker-multicontainer-libretime/.env
 cp docker-multicontainer-libretime/config/icecast-example.xml docker-multicontainer-libretime/config/icecast.xml
 vi docker-multicontainer-libretime/config/icecast.xml
 
+# Create a new docker network if this is the first time running Libretie...
+docker network create libretime
+
 # Stand up the container
 docker-compose up -d
 

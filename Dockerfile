@@ -21,7 +21,7 @@ RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 ph
 
 # Pull down libretime sources
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    git clone https://github.com/ned-kelly/libretime.git /opt/libretime && \
+    git clone --depth=1 https://github.com/ned-kelly/libretime.git /opt/libretime && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
     sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
