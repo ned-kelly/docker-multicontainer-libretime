@@ -38,6 +38,7 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
+# Libretime's "--install" flag will also add any missing packages...
 RUN apt-get install -y \
         php7.0-curl \
         php7.0-pgsql \
@@ -55,6 +56,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
     sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
+
+    # We need to patch Liquidsoap for 1.3.x support (the current libretime builds only has 1.1.1 support)... 
+    cd /opt/libretime && curl -L https://github.com/LibreTime/libretime/compare/master...radiorabe:feature/liquidsoap-1.3.0.patch | patch -p1 && \
     bash -c 'cd /opt/libretime; ./install --distribution=ubuntu --release=xenial_docker_minimal --force --apache --no-postgres --no-rabbitmq; exit 0'; exit 0
 
 # This will be mapped in with all the media...
@@ -72,12 +76,11 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
     go get github.com/jpillora/go-tcp-proxy/cmd/tcp-proxy && \
     rm -rf /opt/go1.*.tar.gz
 
-# Remove PostgreSQL and RMQ before building Silian...
-RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
+# Remove PostgreSQL and RMQ other packages that were installed by the "Libretime Setup Script" -- before building Silian ...
+RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2 silan
 
 # Build us a copy of Silan 0.4.0 which fixes many of the various problems listed throughout the libretime forums.
-RUN apt-get remove silan -y && \
-    git clone https://github.com/x42/silan.git /opt/silan && \
+RUN git clone https://github.com/x42/silan.git /opt/silan && \
     cd /opt/silan && git fetch && git fetch --tags && git checkout "v0.4.0" && \
     /opt/silan/x-pbuildstatic.sh && \
     cd /usr/src/silan && make && make install && \
@@ -86,6 +89,39 @@ RUN apt-get remove silan -y && \
     # We need to install ffmpeg AFTER we've built and statically linked silan... 
     # See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
     apt-get install ffmpeg -y
+
+
+# We're going to install Liquidsoap 1.3.x directly from github (apt currently only has 1.1.1) -- this seems to have better stability overall with media stream.
+# SEE: https://github.com/LibreTime/libretime/issues/192 - For further details around this.
+
+RUN apt-get remove liquidsoap -y && \
+
+    # install system packages like opam (the make tools are for the 1.3.x+scm install below)
+    apt-get install ocaml ocaml-native-compilers camlp4-extra opam autotools-dev automake -y && \
+
+    mkdir /usr/local/opam && \
+    chown liquidsoap:liquidsoap /usr/local/opam /usr/share/liquidsoap/ && \
+
+    # we need to switch to the liquidsoap, some things do not like being installed as root
+    usermod -s /bin/bash liquidsoap && \
+    usermod -aG sudo liquidsoap && \
+    echo "liquidsoap ALL = NOPASSWD : ALL" >> /etc/sudoers && \
+
+    # Opam must be >= "4.03" to install the newer Liquidsoap...
+    su - liquidsoap -c "OPAMYES=yes && opam init --root=/usr/local/opam --yes && opam init --yes && opam switch 4.06.0" && \
+
+    # run the following commands as the liquidsoap user...
+
+    # I installed the deps as root before re-installing as user liquidsoap
+    # run this as root after running an additional eval `opam config env --root=/usr/local/opam`
+
+    su - liquidsoap -c "eval `opam config env --root=/usr/local/opam` \
+        export OPAMYES=yes && opam depext alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes ; \
+        export OPAMYES=yes && opam install alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes" && \
+    
+    # run this as root to make liquidsoap your default on the whole system (extremely hacky)
+    echo "eval \`opam config env --root=/usr/local/opam\`" > /etc/profile.d/liquidsoap-opam.sh && \
+    ln -s /usr/local/opam/system/bin/liquidsoap /usr/bin/liquidsoap
 
 COPY bootstrap/entrypoint.sh bootstrap/add-to-cron.txt bootstrap/firstrun.sh /opt/libretime/
 COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf

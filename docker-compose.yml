@@ -56,7 +56,7 @@ services:
     ports:
 
       # Icecast alternative port (probably good to expose this one to the web)
-      - 35112:35112
+      - ${ICECAST_PORT-35112}:35112
 
       # The Icecast Default Port (mapping through for local clients that may require :8000)
       - 8000:35112
@@ -67,11 +67,18 @@ services:
       - libretime-internal
 
   libretime-core:
-    # Uncomment to build locally
-    # build: .
 
-    # Comment out if you want to use the local build rather than what's on docker-hub.
+    ## Docker-compose can create the containers in two ways: 
+    ## 1. From a local Dockerfile by supplying a path to the "build" configuration option. This method is commented-out by default:
+    
+    # build: .
+    
+    ## 2. From a pre-made image downloaded from docker-hub. This option is enabled by default because it's faster. 
+    
     image: bushrangers/ubuntu-multicontainer-libretime:latest
+    
+    # To make changes to how the libretime-core container is built, modify the Dockerfile contained in this same folder, uncomment the "build: ." line above, and comment-out the "image: ..." line. You will then need to run docker-compose again, this time supplying options to tell it not to use it's cache: `docker-compose up -d --build --force-recreate`
+    # See the docker-compose documentation for more information: https://docs.docker.com/compose/overview/
 
     container_name: libretime-core
     restart: always

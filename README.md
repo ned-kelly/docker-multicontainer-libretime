@@ -14,8 +14,6 @@ It's originally based off my [`docker-multicontainer-airtime`](https://github.co
 
 **Docker Hub:** [`bushrangers/ubuntu-multicontainer-libretime`](https://hub.docker.com/r/bushrangers/ubuntu-multicontainer-libretime/)
 
-
-
 ![Docker Build Status](https://img.shields.io/docker/build/bushrangers/ubuntu-multicontainer-libretime.png) ![Docker Pulls](https://img.shields.io/docker/pulls/bushrangers/ubuntu-multicontainer-libretime.png)
 
 
@@ -55,6 +53,7 @@ If you are just testing locally and not deploying this in a production environme
 | `WEB_UI_PORT`           | libretime-core     | 8882                         | The default port that the main Libretime HTTP Server/Web-UI will run on |
 | `MASTER_SOURCE_PORT`    | libretime-core     | 8001                         | Master port that producers can use to over-ride the active program with an Icecast Stream (Use a tool like [BUTT](https://github.com/dkwiebe/broadcasttool)) |
 | `DJ_SOURCE_PORT`        | libretime-core     | 8002                         | DJ's Icecast port that they can use remotely (using their Libretime credentials) to broadcast during their scheduled time-slot |
+| `ICECAST_PORT`          | libretime-icecast  | 35112                        | The default port that Icecast will stream on -- Suggest leaving as default (a high number), 8000 is a common port that is often port-scanned |
 
 You must change the passwords in your `ICECAST_CONFIG_FILE` at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
 
