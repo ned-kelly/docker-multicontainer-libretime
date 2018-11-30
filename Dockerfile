@@ -79,16 +79,16 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
 # Remove PostgreSQL and RMQ other packages that were installed by the "Libretime Setup Script" -- before building Silian ...
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2 silan
 
+# We need to install ffmpeg BEFORE we've built and statically linked silan (it will link some files that ffmpeg will remove if ffmpeg installed after)...
+# See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
+RUN apt-get install ffmpeg -y
+
 # Build us a copy of Silan 0.4.0 which fixes many of the various problems listed throughout the libretime forums.
 RUN git clone https://github.com/x42/silan.git /opt/silan && \
     cd /opt/silan && git fetch && git fetch --tags && git checkout "v0.4.0" && \
     /opt/silan/x-pbuildstatic.sh && \
-    cd /usr/src/silan && make && make install && \
-    ln -s /usr/local/bin/silan /usr/bin/silan && \
-
-    # We need to install ffmpeg AFTER we've built and statically linked silan... 
-    # See: https://github.com/LibreTime/libretime/commit/796a2a3ddd94dc671ab206b0e8ec1e20fbc4fb2a
-    apt-get install ffmpeg -y
+    cd /usr/src/silan && ./configure && make && make install && \
+    ln -s /usr/local/bin/silan /usr/bin/silan
 
 
 # We're going to install Liquidsoap 1.3.x directly from github (apt currently only has 1.1.1) -- this seems to have better stability overall with media stream.
