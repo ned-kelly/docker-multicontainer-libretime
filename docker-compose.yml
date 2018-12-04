@@ -36,46 +36,17 @@ services:
     networks:
       - libretime-internal
 
-  libretime-icecast:
-    image: infiniteproject/icecast:latest
-    container_name: libretime-icecast
-    restart: always
-    privileged: true
-
-    environment:
-      - "ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD-admin}"
-      - "ICECAST_ADMIN_USERNAME=${ICECAST_ADMIN_USERNAME-hackme}"
-      - "ICECAST_ADMIN_EMAIL=${ICECAST_ADMIN_EMAIL-icemaster@example.com}"
-      - "ICECAST_HOSTNAME=${ICECAST_HOSTNAME-icecast.your-fqdn.com}"
-      - "ICECAST_LOCATION=${ICECAST_LOCATION-Mars}"
-      - "ICECAST_MAX_CLIENTS=${ICECAST_MAX_CLIENTS-250}"
-      - "ICECAST_MAX_SOURCES=${ICECAST_MAX_SOURCES-3}"
-      - "ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD-hackme}"
-      - "ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD-hackme}"
-
-    ports:
-
-      # Icecast alternative port (probably good to expose this one to the web)
-      - ${ICECAST_PORT-35112}:35112
-
-      # The Icecast Default Port (mapping through for local clients that may require :8000)
-      - 8000:35112
-
-    volumes:
-      - ${ICECAST_CONFIG_FILE-./config/icecast-example.xml}:/etc/icecast.xml
-    networks:
-      - libretime-internal
-
   libretime-core:
 
     ## Docker-compose can create the containers in two ways: 
     ## 1. From a local Dockerfile by supplying a path to the "build" configuration option. This method is commented-out by default:
     
-    # build: .
+    # build:
+    #   context: ./libretime-core
+    #   dockerfile: Dockerfile
     
     ## 2. From a pre-made image downloaded from docker-hub. This option is enabled by default because it's faster. 
-    
-    image: bushrangers/ubuntu-multicontainer-libretime:latest
+    image: bushrangers/ubuntu-multicontainer-libretime:libretime-latest
     
     # To make changes to how the libretime-core container is built, modify the Dockerfile contained in this same folder, uncomment the "build: ." line above, and comment-out the "image: ..." line. You will then need to run docker-compose again, this time supplying options to tell it not to use it's cache: `docker-compose up -d --build --force-recreate`
     # See the docker-compose documentation for more information: https://docs.docker.com/compose/overview/
@@ -96,7 +67,7 @@ services:
 
       #### NOTE: ####
       #
-      # For detailed configuration, please edit the `config/airtime/airtime.conf` file once the container has started for the first time.
+      # For detailed configuration, please edit the `libretime-code/config/airtime/airtime.conf` file once the container has started for the first time.
       # The configuration variables here will over-write your airtime.conf file on the server when booting.
       #
       ########################################################################################
@@ -121,10 +92,10 @@ services:
     volumes:
       
       # This structure has not yet been renamed in the fork of libretime from airtime.
-      - ./config/airtime:/etc/airtime
+      - ./libretime-core/config/airtime:/etc/airtime
 
       # Airtime customisations directory...
-      - ./customisations:/etc/airtime-customisations
+      - ./libretime-core/customisations:/etc/airtime-customisations
 
       # NB: Libretime will create some directories in this location (for user uploads, recorded podcasts etc)
       # Change the `/localmusic` part of this directive to the location of your media files..
@@ -133,6 +104,50 @@ services:
     networks:
       - libretime-internal
       - libretime
+
+
+  libretime-icecast:
+
+    # build:
+    #   context: ./libretime-icecast
+    #   dockerfile: Dockerfile
+
+    image: bushrangers/ubuntu-multicontainer-libretime:icecast-latest
+
+    container_name: libretime-icecast
+    restart: always
+    privileged: true
+
+    environment:
+      - "ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD-admin}"
+      - "ICECAST_ADMIN_USERNAME=${ICECAST_ADMIN_USERNAME-hackme}"
+      - "ICECAST_ADMIN_EMAIL=${ICECAST_ADMIN_EMAIL-noreply@libretime.org}"
+      - "ICECAST_HOSTNAME=${ICECAST_HOSTNAME-icecast.your-fqdn.com}"
+      - "ICECAST_LOCATION=${ICECAST_LOCATION-Mars}"
+      - "ICECAST_MAX_CLIENTS=${ICECAST_MAX_CLIENTS-250}"
+      - "ICECAST_MAX_SOURCES=${ICECAST_MAX_SOURCES-3}"
+      - "ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PASSWORD-hackme}"
+      - "ICECAST_RELAY_PASSWORD=${ICECAST_RELAY_PASSWORD-hackme}"
+      - "ICECAST_PORT=${ICECAST_PORT-35112}"
+      - "WEBSITE_HOMEPAGE=${WEBSITE_HOMEPAGE-http://libretime.org/}"
+      - "ICECAST_MOUNT_NAME=${ICECAST_MOUNT_NAME-/live}"
+
+    ports:
+
+      # Icecast alternative port (probably good to expose this one to the web)
+      - ${ICECAST_PORT-35112}:35112
+
+      # The Icecast Default Port (mapping through for local clients that may require :8000)
+      - 8000:${ICECAST_PORT-35112}
+
+    volumes:
+     #- ${ICECAST_CONFIG_FILE-./libretime-icecast/config/icecast-example.xml}:/etc/icecast.xml
+      # Same mapping as the Libretime Localmusic... (so we can auto-play MP3's from libretieme when the stream disconnects...)
+      - ${LOCAL_MUSIC_MAPPING-./localmusic}:/external-media
+
+    networks:
+      - libretime-internal
+
 
   ## UNCOMMENT IF YOU WANT TO SEND YOUR ICECAST LISTENER STATS UP TO GOOGLE ANALTYICS 
   # icecast-analytics:
@@ -146,7 +161,7 @@ services:
 
   ## PLEASE CONFIGURE THE "icecast-ga-config.xml" FILE BEFORE USING THIS CONTAINER
   #   volumes:
-  # - ./config/icecast-ga-config.xml:/config/config.xml
+  # - ./libretime-icecast/config/icecast-ga-config.xml:/config/config.xml
 
 networks:
   libretime-internal:

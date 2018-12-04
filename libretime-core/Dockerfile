@@ -56,7 +56,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
     sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
-
+    #
     # We need to patch Liquidsoap for 1.3.x support (the current libretime builds only has 1.1.1 support)... 
     cd /opt/libretime && curl -L https://github.com/LibreTime/libretime/compare/master...radiorabe:feature/liquidsoap-1.3.0.patch | patch -p1 && \
     bash -c 'cd /opt/libretime; ./install --distribution=ubuntu --release=xenial_docker_minimal --force --apache --no-postgres --no-rabbitmq; exit 0'; exit 0
@@ -98,23 +98,23 @@ RUN apt-get remove liquidsoap -y && \
 
     # install system packages like opam (the make tools are for the 1.3.x+scm install below)
     apt-get install ocaml ocaml-native-compilers camlp4-extra opam autotools-dev automake -y && \
-
+    #
     mkdir /usr/local/opam && \
     chown liquidsoap:liquidsoap /usr/local/opam /usr/share/liquidsoap/ && \
-
+    #
     # we need to switch to the liquidsoap, some things do not like being installed as root
     usermod -s /bin/bash liquidsoap && \
     usermod -aG sudo liquidsoap && \
     echo "liquidsoap ALL = NOPASSWD : ALL" >> /etc/sudoers && \
-
+    #
     # Opam must be >= "4.03" to install the newer Liquidsoap...
     su - liquidsoap -c "OPAMYES=yes && opam init --root=/usr/local/opam --yes && opam init --yes && opam switch 4.06.0" && \
-
+    #
     # run the following commands as the liquidsoap user...
-
+    #
     # I installed the deps as root before re-installing as user liquidsoap
     # run this as root after running an additional eval `opam config env --root=/usr/local/opam`
-
+    #
     su - liquidsoap -c "eval `opam config env --root=/usr/local/opam` \
         export OPAMYES=yes && opam depext alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes ; \
         export OPAMYES=yes && opam install alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes" && \
@@ -128,7 +128,7 @@ COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN chmod +x /opt/libretime/firstrun.sh && \
     chmod +x /opt/libretime/entrypoint.sh && \
-
+    #
     # Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)... 
     crontab /opt/libretime/add-to-cron.txt
 

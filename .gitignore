@@ -1,5 +1,5 @@
 .DS_Store
-config/airtime
+libretime-core/config/airtime
 postgresql/
 localmusic/
 Thumbs.db

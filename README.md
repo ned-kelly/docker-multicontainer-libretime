@@ -2,15 +2,13 @@
 
 This is a multi-container Docker build of the Libretime Radio Broadcast Software _(Libretime is a direct fork of Airtime for those who are wondering, hence the similarities)_.
 
-It's an aim to run the environment ready for production which can be stood up in a few minutes (with ease), and all common media directories, database files etc mapped into the container(s) so data is persisted between rebuilds of the application.
+It's an aim to run the environment ready for production which can be stood up in a few minutes (with ease), and all common media directories, database files, auto-dj icecast fallback support etc is mapped into the container(s) so data is persisted between rebuilds of the application.
 
 It's originally based off my [`docker-multicontainer-airtime`](https://github.com/ned-kelly/docker-multicontainer-airtime) setup, and has been adapted to suit the newer Libretime sources accordingly.
 
 **If you require assistance deploying this solution for a commercial station, please feel free to reach out to me - I do provide consultancy services.**
 
 ---------------------------
-
-**Last Tested Libretime Build**: [`ned-kelly fork (2018-10-20)`](https://github.com/ned-kelly/libretime)
 
 **Docker Hub:** [`bushrangers/ubuntu-multicontainer-libretime`](https://hub.docker.com/r/bushrangers/ubuntu-multicontainer-libretime/)
 
@@ -39,21 +37,30 @@ You will want to create a new `.env` file in the root of the project directory w
 
 If you are just testing locally and not deploying this in a production environment, you can skip over this section and use the default configuration, however **if you are planning on deploying this on the Internet as a live server you SHOULD SET this configuration so you are not using default passwords/configuration etc.**
 
-### Variables Currently Supported:
+### Configuration Variables Currently Supported:
 
-| Variable                | Targets            | Default Value                | Purpose                                                               |
-|-------------------------|--------------------|------------------------------|-----------------------------------------------------------------------|
-| `POSTGRES_USER`         | libretime-postgres | libretime                    | The username to provision when standing up PostgreSQL                 |
-| `POSTGRES_PASSWORD`     | libretime-postgres | libretime                    | Password for the PostgreSQL Database                                  |
-| `RABBITMQ_DEFAULT_USER` | libretime-rabbitmq | libretime                    | Username to access the RabbitMQ service                               |
-| `RABBITMQ_DEFAULT_PASS` | libretime-rabbitmq | libretime                    | Username to access the RabbitMQ service                               |
-| `ICECAST_CONFIG_FILE`   | libretime-icecast  | ./config/icecast-example.xml | Path to your Icecast configuration file                               |
-| `EXTERNAL_HOSTNAME`     | libretime-core     | localhost                    | The FQDN of your server published on the internet - If left as `localhost` apache iframes and other configuration will be stripped out and made "relative"                     |
-| `LOCAL_MUSIC_MAPPING`   | libretime-core     | `./localmusic`               | The path to your media directory / where uploads/media will be stored |
-| `WEB_UI_PORT`           | libretime-core     | 8882                         | The default port that the main Libretime HTTP Server/Web-UI will run on |
-| `MASTER_SOURCE_PORT`    | libretime-core     | 8001                         | Master port that producers can use to over-ride the active program with an Icecast Stream (Use a tool like [BUTT](https://github.com/dkwiebe/broadcasttool)) |
-| `DJ_SOURCE_PORT`        | libretime-core     | 8002                         | DJ's Icecast port that they can use remotely (using their Libretime credentials) to broadcast during their scheduled time-slot |
-| `ICECAST_PORT`          | libretime-icecast  | 35112                        | The default port that Icecast will stream on -- Suggest leaving as default (a high number), 8000 is a common port that is often port-scanned |
+| Variable                    | Targets            | Default Value                | Purpose                                                                                                                                                                                                                 |
+|-----------------------------|--------------------|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `POSTGRES_USER`             | libretime-postgres | `libretime`                  | The username to provision when standing up PostgreSQL                                                                                                                                                                   |
+| `POSTGRES_PASSWORD`         | libretime-postgres | `libretime`                  | Password for the PostgreSQL Database                                                                                                                                                                                    |
+| `RABBITMQ_DEFAULT_USER`     | libretime-rabbitmq | `libretime`                  | Username to access the RabbitMQ service                                                                                                                                                                                 |
+| `RABBITMQ_DEFAULT_PASS`     | libretime-rabbitmq | `libretime`                  | Username to access the RabbitMQ service                                                                                                                                                                                 |
+| `EXTERNAL_HOSTNAME`         | libretime-core     | `localhost`                  | The FQDN of your server published on the Internet - If left as `localhost` apache iframes and other configuration will be stripped out and made "relative"                                                              |
+| `LOCAL_MUSIC_MAPPING`       | libretime-core     | `./localmusic`               | The path to your media directory / where uploads/media will be stored                                                                                                                                                   |
+| `WEB_UI_PORT`               | libretime-core     | `8882`                       | The default port that the main Libretime HTTP Server/Web-UI will run on                                                                                                                                                 |
+| `MASTER_SOURCE_PORT`        | libretime-core     | `8001`                       | Master port that producers can use to over-ride the active program with an Icecast Stream (Use a tool like [BUTT](https://github.com/dkwiebe/broadcasttool))                                                            |
+| `DJ_SOURCE_PORT`            | libretime-core     | `8002`                       | DJ's Icecast port that they can use remotely (using their Libretime credentials) to broadcast during their scheduled time-slot                                                                                          |
+| `ICECAST_PORT`              | libretime-icecast  | `35112`                      | The default port that Icecast will stream on -- Suggest leaving as default (a high number), 8000 is a common port that is often port-scanned                                                                            |
+| `ICECAST_LOCATION`          | libretime-icecast  | `Mars`                       | The location of your Stream - Hint, put your city name here!                                                                                                                                                            |
+| `ICECAST_SOURCE_PASSWORD`   | libretime-icecast  | `libretime`                  | This is the password Libretime uses to connect to icecast - You should make this something nice and secure - You don't want people hijacking your stream!                                                               |
+| `ICECAST_RELAY_PASSWORD`    | libretime-icecast  | `libretime`                  | The password that people can use to re-stream your stream (i.e. create a satellite stream)                                                                                                                              |
+| `ICECAST_ADMIN_USERNAME`    | libretime-icecast  | `admin`                      | The username to Administer the Icecast service                                                                                                                                                                          |
+| `ICECAST_ADMIN_PASSWORD`    | libretime-icecast  | `libretime`                  | Password for the Icecast Administration User                                                                                                                                                                            |
+| `ICECAST_ADMIN_EMAIL`       | libretime-icecast  | `martians@example.com`       | The "contact email" of the main person managing this setup/station (make this a generic email i.e. info@yourstation.com)                                                                                                |
+| `ICECAST_HOSTNAME`          | libretime-icecast  | `icecast.local`              | This can be the same as your `EXTERNAL_HOSTNAME` parameter if you're running on the same IP/Host - It does however need to be a FQDN!                                                                                   |
+| `ICECAST_MAX_CLIENTS`       | libretime-icecast  | `500`                        | Total number of people that can stream the station before Icecast will deny connections - You should limit this to a realistic value depending on how much UPLOAD bandwidth you have available at your station...       |
+| `ICECAST_MOUNT_NAME`        | libretime-icecast  | `/live`                      | This is the endpoint that your stream will be published/accessible on                                                                                                                                                   |
+| `WEBSITE_HOMEPAGE`          | libretime-icecast  | `http://libretime.org/`      | The URL to your station's homepage.                                                                                                                                                                                     |
 
 You must change the passwords in your `ICECAST_CONFIG_FILE` at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
 
@@ -65,12 +72,10 @@ It's pretty straightforward, just clone down the sources and stand up the contai
 # Clone down sources
 git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
 
-### CREATE AN .env FILE AND ADD CONFIGURATION (See variables above for details) ###
-vi docker-multicontainer-libretime/.env
+### CREATE A .env FILE AND ADD CONFIGURATION ###
+# You can use the default configuration and skip this step if you are just testing.
 
-# Edit your Icecast File
-cp docker-multicontainer-libretime/config/icecast-example.xml docker-multicontainer-libretime/config/icecast.xml
-vi docker-multicontainer-libretime/config/icecast.xml
+vi docker-multicontainer-libretime/.env
 
 # Create a new docker network if this is the first time running Libretime it will be required...
 docker network create libretime
@@ -135,6 +140,17 @@ You might want to use something like [This "Caddy" Docker Container](https://git
 ## Icecast Google Analytics
 
 If you want to send the data from your Icecast Streams to Google Analytics (so number of listeners, most popular streams/bitrates etc - please see the docker-[icecast-google-analytics](https://github.com/ned-kelly/docker-icecast-google-analytics) project, which can be integrated to your cluster.
+
+## Fallback Icecast Stream Support
+
+The setup includes a custom build of Icecast which has been pre-configured with a service called `ezstream` which will automatically play fallback music (A random playlist generated from your `LOCAL_MUSIC_MAPPING` content) in the event of a Libretime failure/restart/upgrade of the main Libretime container, or lack of programming in Libretime (i.e. there's nothing configured in Libretime).
+
+By default, the "playlist" of fallback media will be auto-regenerated each night at midnight...
+if you wish to manually trigger a regeneration of the fallback playlist you may run the following:
+
+```bash
+docker exec -it libretime-icecast bash -c "/playlist-builder.sh"
+```
 
 ## Customising & scripting your deployment
 
