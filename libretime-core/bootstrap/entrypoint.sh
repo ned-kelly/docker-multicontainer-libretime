@@ -5,9 +5,6 @@ AIRTIME_APACHE_CONFIG="/etc/apache2/sites-enabled/airtime.conf"
 # Script that is executed to apply further customizations to airtime.
 CUSTOMISATIONS_SCRIPT="/etc/airtime-customisations/run.sh"
 
-# Airtime seems to expect the hostname of 'airtime' to be set to properly function...
-echo "127.0.0.1 airtime libretime" >> /etc/hosts
-
 function setConfigFromEnvironments {
 
     # RabbitMQ
@@ -53,6 +50,12 @@ function apacheFixes() {
 
 }
 
+function fqdnFixes() {
+    # Airtime seems to expect the hostname of 'airtime' to be set to properly function...
+    # EXTERNAL_HOSTNAME necessary in order to connect to icecast when setting custom output streams
+    echo "127.0.0.1 airtime libretime $EXTERNAL_HOSTNAME" >> /etc/hosts
+}
+
 function customisations() {
     if [ -f "$CUSTOMISATIONS_SCRIPT" ]; then
         bash "$CUSTOMISATIONS_SCRIPT" 
@@ -66,13 +69,13 @@ if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
     /opt/libretime/firstrun.sh
 
     # update config based on environment variables...
-    setConfigFromEnvironments && apacheFixes && customisations
+    setConfigFromEnvironments && apacheFixes && customisations && fqdnFixes
 
     # Start everything up :)
     /usr/bin/supervisord
 else
     # Check (and update if required) any config based on environment variables..
-    setConfigFromEnvironments && apacheFixes && customisations
+    setConfigFromEnvironments && apacheFixes && customisations && fqdnFixes
 
     # We're already installed - just run supervisor..
     /usr/bin/supervisord
