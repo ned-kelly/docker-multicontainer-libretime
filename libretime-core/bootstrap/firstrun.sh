@@ -32,4 +32,4 @@ curl -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 curl -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
      -H 'Accept: application/json, text/javascript, */*; q=0.01' \
       --data 'mediaFolder=%2Fexternal-media%2F&mediaErr=' \
-      "http://${IP}/setup/setup-functions.php?obj=MediaSetup" 
+      "http://${IP}/setup/setup-functions.php?obj=MediaSetup"
