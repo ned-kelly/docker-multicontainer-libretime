@@ -25,7 +25,7 @@ curl -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 # Web Interface
 curl -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
      -H 'Accept: application/json, text/javascript, */*; q=0.01' \
-     --data "generalHost=localhost&generalPort=80&generalErr=" \
+     --data "generalHost=$EXTERNAL_HOSTNAME&generalPort=80&generalErr=" \
      "http://${IP}/setup/setup-functions.php?obj=GeneralSetup"
 
 # Media Settings
