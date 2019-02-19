@@ -72,8 +72,9 @@ services:
       #
       ########################################################################################
 
-      # There's some apache fixes that are applied here so that you can expose the site on the internet - Specify the public FQDN name of your server here.
-      - "EXTERNAL_HOSTNAME=${EXTERNAL_HOSTNAME-localhost}"
+      # There's some apache fixes that are applied here so that you can expose the site on the internet - Specify the public FQDN name of your server using the EXTERNAL_HOSTNAME variable in your .env file.
+      - EXTERNAL_HOSTNAME=${EXTERNAL_HOSTNAME-localhost}
+      - WEB_UI_PORT=${WEB_UI_PORT-8882}
 
       # Don't change these unless you change their values in the `libretime-rabbitmq` block.
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER-libretime}

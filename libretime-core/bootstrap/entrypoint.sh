@@ -5,9 +5,6 @@ AIRTIME_APACHE_CONFIG="/etc/apache2/sites-enabled/airtime.conf"
 # Script that is executed to apply further customizations to airtime.
 CUSTOMISATIONS_SCRIPT="/etc/airtime-customisations/run.sh"
 
-# Airtime seems to expect the hostname of 'airtime' to be set to properly function...
-echo "127.0.0.1 airtime libretime" >> /etc/hosts
-
 function setConfigFromEnvironments {
 
     # RabbitMQ
@@ -36,21 +33,20 @@ function setConfigFromEnvironments {
 
 function apacheFixes() {
 
-    if ! grep -q 'BEGIN:LOCALHOSTFIX--' "$AIRTIME_APACHE_CONFIG"
+    if ! grep -q 'BEGIN:WEBPORTFIX--' "$AIRTIME_APACHE_CONFIG"
     then
 
         # Add in a "Substitute" filter to apache to strip out localhost references on the fly...
-        sed -i 's^.*</VirtualHost>.*^  # Quick fix for iframes that reference hard coded localhost in paths.\n  # BEGIN:LOCALHOSTFIX--\n   <Location "/">\n      SetOutputFilter SUBSTITUTE;DEFLATE\n      AddOutputFilterByType SUBSTITUTE text/html\n      Substitute "s|http://localhost//|/|ni"\n      Substitute "s|https://localhost//|/|ni"\n      Substitute "s|http://localhost/|/|ni"\n      Substitute "s|https://localhost/|/|ni"\n  </Location>\n&^' "$AIRTIME_APACHE_CONFIG"
+        sed -i 's^.*</VirtualHost>.*^  # Quick fix for iframes and assets that load the EXTERNAL_HOSTNAME without a port.\n  # BEGIN:WEBPORTFIX--\n    <Location "/">\n      SetOutputFilter SUBSTITUTE;DEFLATE\n      AddOutputFilterByType SUBSTITUTE text/html\n      Substitute "s|'$EXTERNAL_HOSTNAME'/embed|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'/embed|ni"\n      Substitute "s|'$EXTERNAL_HOSTNAME'/js|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'/js|ni"\n      Substitute "s|'$EXTERNAL_HOSTNAME'//css|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'//css|ni"\n      Substitute "s|'$EXTERNAL_HOSTNAME'/css|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'/css|ni"\n      Substitute "s|'$EXTERNAL_HOSTNAME'/widgets|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'/widgets|ni"\n      Substitute "s|'$EXTERNAL_HOSTNAME'/api|'$EXTERNAL_HOSTNAME':'$WEB_UI_PORT'/api|ni"\n    </Location>\n&^' "$AIRTIME_APACHE_CONFIG"
 
         a2enmod substitute
     fi
+}
 
-    if ! grep -q "$EXTERNAL_HOSTNAME" "$AIRTIME_APACHE_CONFIG"
-    then
-        # Fix localhost on "Radio Embed Page"
-        sed -i 's^.*</Location>.*^ Substitute "s|http:\\/\\/localhost:8000|http:\\/\\/'"$EXTERNAL_HOSTNAME"'|ni"\n&^' "$AIRTIME_APACHE_CONFIG"
-    fi
-
+function fqdnFixes() {
+    # Airtime seems to expect the hostname of 'airtime' to be set to properly function...
+    # EXTERNAL_HOSTNAME necessary in order to connect to icecast when setting custom output streams
+    echo "127.0.0.1 airtime libretime $EXTERNAL_HOSTNAME" >> /etc/hosts
 }
 
 function customisations() {
@@ -66,13 +62,13 @@ if [ ! -f "$AIRTIME_CONFIG_FILE" ]; then
     /opt/libretime/firstrun.sh
 
     # update config based on environment variables...
-    setConfigFromEnvironments && apacheFixes && customisations
+    setConfigFromEnvironments && apacheFixes && customisations && fqdnFixes
 
     # Start everything up :)
     /usr/bin/supervisord
 else
     # Check (and update if required) any config based on environment variables..
-    setConfigFromEnvironments && apacheFixes && customisations
+    setConfigFromEnvironments && apacheFixes && customisations && fqdnFixes
 
     # We're already installed - just run supervisor..
     /usr/bin/supervisord
