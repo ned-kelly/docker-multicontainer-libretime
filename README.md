@@ -31,6 +31,44 @@ Optional Extras:
 
 ![Container Overview](https://raw.githubusercontent.com/ned-kelly/docker-multicontainer-libretime/master/screenshots/docker-container-diagram.png "Container Overview")
 
+## Standing up:
+
+It's pretty straightforward, just clone down the sources and stand up the container like so:
+
+```bash
+# Clone down sources to /opt/libretime...
+git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git /opt/libretime
+cd /opt/libretime
+
+### CREATE A .env FILE AND ADD CONFIGURATION (see below for configuration options) ###
+# You can use the default configuration and skip this step if you are just testing.
+
+vi docker-multicontainer-libretime/.env
+
+# Create a new docker network if this is the first time running Libretime it will be required...
+docker network create libretime
+
+# You will need to make your 'localmusic' directory writable so you can upload some content to the server...
+mkdir localmusic && chmod 777 localmusic
+
+# Stand up the container
+docker-compose up -d
+
+```
+
+**Building against the Master Branch**:
+
+If you want to build against the most recent Libratime releases (rather than using the pre-built docker image), simply edit the main `docker-compose.yml` file and comment out the `image` directive (in the `libretime-core` definition) and uncomment the `build` line. This will not pull the latest build from the Docker hub, but rather build a local copy from the latest Libratime sources locally. Note that there's no guarantees against the stability of Libratime when using "bleeding edge" builds and you should test this before rolling out into production.
+
+**NOTE**:
+
+When running for the first time, the libretime-core container will run some 'boostrap' scripts. This will take 15-30 seconds (after standing up the containers) BEFORE you will be able to fully access libretime.
+
+You can monitor the progress of the bootstrap process by running: `docker logs -f libretime-core`.
+
+Once the containers have been stood up you should be able to access the project directly in your browser...
+
+
 ## Configuration:
 
 You will want to create a new `.env` file in the root of the project directory with variables that will not be over-written when pulling down newer builds of the configuration.
@@ -62,43 +100,7 @@ If you are just testing locally and not deploying this in a production environme
 | `ICECAST_MOUNT_NAME`        | libretime-icecast  | `/live`                      | This is the endpoint that your stream will be published/accessible on                                                                                                                                                   |
 | `WEBSITE_HOMEPAGE`          | libretime-icecast  | `http://libretime.org/`      | The URL to your station's homepage.                                                                                                                                                                                     |
 
-You must change the passwords in your `ICECAST_CONFIG_FILE` at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
-
-## Standing up:
-
-It's pretty straightforward, just clone down the sources and stand up the container like so:
-
-```bash
-# Clone down sources
-git clone https://github.com/ned-kelly/docker-multicontainer-libretime.git
-
-### CREATE A .env FILE AND ADD CONFIGURATION ###
-# You can use the default configuration and skip this step if you are just testing.
-
-vi docker-multicontainer-libretime/.env
-
-# Create a new docker network if this is the first time running Libretime it will be required...
-docker network create libretime
-
-# You will need to make your 'localmusic' directory writable so you can upload some content to the server...
-mkdir localmusic && chmod 777 localmusic
-
-# Stand up the container
-docker-compose up -d
-
-```
-
-**Building against the Master Branch**:
-
-If you want to build against the most recent Libratime releases (rather than using the pre-built docker image), simply edit the main `docker-compose.yml` file and comment out the `image` directive (in the `libretime-core` definition) and uncomment the `build` line. This will not pull the latest build from the Docker hub, but rather build a local copy from the latest Libratime sources locally. Note that there's no guarantees against the stability of Libratime when using "bleeding edge" builds and you should test this before rolling out into production.
-
-**NOTE**:
-
-When running for the first time, the libretime-core container will run some 'boostrap' scripts. This will take 15-30 seconds (after standing up the containers) BEFORE you will be able to fully access libretime.
-
-You can monitor the progress of the bootstrap process by running: `docker logs -f libretime-core`.
-
-Once the containers have been stood up you should be able to access the project directly in your browser...
+You should change the Icecast passwords at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
 
 ## Accessing:
 

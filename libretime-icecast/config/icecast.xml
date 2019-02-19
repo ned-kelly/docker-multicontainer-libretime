@@ -76,7 +76,7 @@
     <!-- This is the 'fallback' stream that we will default to in the event of a libretime failure/stream disconnection -->
     <mount>
         <mount-name>/fallback</mount-name>
-        <public>1</public>
+        <public>0</public>
         <type>application/mp3</type>
         <subtype>mp3</subtype>
         <burst-size>65536</burst-size>

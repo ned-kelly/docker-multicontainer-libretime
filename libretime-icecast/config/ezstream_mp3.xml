@@ -16,8 +16,11 @@
     <sourcepassword>hackme</sourcepassword>
     <format>MP3</format>
     <filename>/etc/ezstream_playlist.m3u</filename>
-    <!-- Once done streaming playlist.m3u, exit: -->
+
+    <!-- Play randomly through the offline playlist & continually repeat! -->
+    <shuffle>1</shuffle> 
     <stream_once>0</stream_once>
+
     <!--
       The following settings are used to describe your stream to the server.
       It's up to you to make sure that the bitrate/samplerate/channels
