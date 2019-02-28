@@ -58,7 +58,7 @@ docker-compose up -d
 
 **Building against the Master Branch**:
 
-If you want to build against the most recent Libratime releases (rather than using the pre-built docker image), simply edit the main `docker-compose.yml` file and comment out the `image` directive (in the `libretime-core` definition) and uncomment the `build` line. This will not pull the latest build from the Docker hub, but rather build a local copy from the latest Libratime sources locally. Note that there's no guarantees against the stability of Libratime when using "bleeding edge" builds and you should test this before rolling out into production.
+If you want to build against the most recent Libretime releases (rather than using the pre-built docker image), simply edit the main `docker-compose.yml` file and comment out the `image` directive (in the `libretime-core` definition) and uncomment the `build` line. This will not pull the latest build from the Docker hub, but rather build a local copy from the latest Libretime sources locally. Note that there's no guarantees against the stability of Libretime when using "bleeding edge" builds and you should test this before rolling out into production.
 
 **NOTE**:
 
@@ -100,7 +100,7 @@ If you are just testing locally and not deploying this in a production environme
 | `ICECAST_MOUNT_NAME`        | libretime-icecast  | `/live`                      | This is the endpoint that your stream will be published/accessible on                                                                                                                                                   |
 | `WEBSITE_HOMEPAGE`          | libretime-icecast  | `http://libretime.org/`      | The URL to your station's homepage.                                                                                                                                                                                     |
 
-You should change the Icecast passwords at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libratime UI)**.
+You should change the Icecast passwords at a minimum - **(Don't leave the passwords as the default if you're exposing this to the internet, you will be hacked _(The default is ok if you're testing)_ - You will also need to update your settings in the Libretime UI)**.
 
 ## Accessing:
 
@@ -123,7 +123,7 @@ Have fun!
 
  - By default - using "localhost" as the server name variable (in airtime.conf), iFrames obviously won't work - For now we are using a reverse proxy fix to replace any references to the "localhost" iframes to be relative.. See [Feature Request 515](https://github.com/LibreTime/libretime/issues/515) for details.
 
- - There seems to be issues when trying to just plonk a reverse proxy directly in front of the latest release of Libratime - Suspect some additional headers may need to be passed through - Anyone who has found a fix when using reverse proxies, please submit a PR.
+ - There seems to be issues when trying to just plonk a reverse proxy directly in front of the latest release of Libretime - Suspect some additional headers may need to be passed through - Anyone who has found a fix when using reverse proxies, please submit a PR.
 
  - The current build of Airtime has some issues pulling in podcasts that are in formats other than MP3 - this includes the [#519](https://github.com/LibreTime/libretime/issues/519) fix for users wanting to auto-import large quantities of podcasts it's pretty important as libretime currently only seems to work with MP3 podcasts.
  
