@@ -52,13 +52,13 @@ RUN apt-get install -y \
 
 # Pull down libretime sources
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    git clone --depth=1 https://github.com/ned-kelly/libretime.git /opt/libretime && \
-    SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
-    sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
+    git clone https://github.com/Libretime/libretime.git /opt/libretime && \
+    sed -i -e 's/^has_systemd_init=false$/has_systemd_init=true/g' /opt/libretime/install && \
+    sed -i -e 's/^systemInitDetect$/\#systemInitDetect/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
     #
-    # We need to patch Liquidsoap for 1.3.x support (the current libretime builds only has 1.1.1 support)... 
-    cd /opt/libretime && curl -L https://github.com/LibreTime/libretime/compare/master...radiorabe:feature/liquidsoap-1.3.0.patch | patch -p1 && \
+    # We need to patch Liquidsoap for 1.3.x support (the current libretime builds only has 1.1.1 support)...
+    cd /opt/libretime && curl -L https://github.com/LibreTime/libretime/compare/master...radiorabe:feature/liquidsoap-1.3-for-3.0.0-alpha.7.patch | patch -p1 && \
     bash -c 'cd /opt/libretime; ./install --distribution=ubuntu --release=xenial_docker_minimal --force --apache --no-postgres --no-rabbitmq; exit 0'; exit 0
 
 # This will be mapped in with all the media...
@@ -66,7 +66,7 @@ RUN mkdir -p /external-media/ && \
     chmod 777 /external-media/
 
 # There seems to be a bug somewhere in the code and it's not respecting the DB being on another host (even though it's configured in the config files!)
-# We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432. 
+# We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432.
 
 RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
     mv go /usr/local/ && \
@@ -118,7 +118,7 @@ RUN apt-get remove liquidsoap -y && \
     su - liquidsoap -c "eval `opam config env --root=/usr/local/opam` \
         export OPAMYES=yes && opam depext alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes ; \
         export OPAMYES=yes && opam install alsa cry fdkaac lame liquidsoap mad opus taglib vorbis --yes" && \
-    
+
     # run this as root to make liquidsoap your default on the whole system (extremely hacky)
     echo "eval \`opam config env --root=/usr/local/opam\`" > /etc/profile.d/liquidsoap-opam.sh && \
     ln -s /usr/local/opam/system/bin/liquidsoap /usr/bin/liquidsoap
@@ -129,7 +129,7 @@ COPY config/supervisor-minimal.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /opt/libretime/firstrun.sh && \
     chmod +x /opt/libretime/entrypoint.sh && \
     #
-    # Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)... 
+    # Setup cron (the podcast script leaves a bit of a mess in /tmp - there's a few cleanup tasks that run via crontab)...
     crontab /opt/libretime/add-to-cron.txt
 
 # Cleanup excess fat...
