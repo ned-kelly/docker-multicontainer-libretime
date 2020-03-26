@@ -120,8 +120,8 @@ services:
     privileged: true
 
     environment:
-      - "ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD-admin}"
-      - "ICECAST_ADMIN_USERNAME=${ICECAST_ADMIN_USERNAME-libretime}"
+      - "ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PASSWORD-libretime}"
+      - "ICECAST_ADMIN_USERNAME=${ICECAST_ADMIN_USERNAME-admin}"
       - "ICECAST_ADMIN_EMAIL=${ICECAST_ADMIN_EMAIL-noreply@libretime.org}"
       - "ICECAST_HOSTNAME=${ICECAST_HOSTNAME-icecast.your-fqdn.com}"
       - "ICECAST_LOCATION=${ICECAST_LOCATION-Mars}"
